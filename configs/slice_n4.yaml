@@ -1,0 +1,10 @@
+name: slice_n4
+data: data/atlas-higgs-challenge-2014-v2.csv.gz
+n_train: [500]
+n_test: 1000
+seeds: [0, 1, 2, 3, 4]
+qubits: [4]
+feature_maps: [{kind: zz, reps: 2}]
+bandwidths: [1.0]
+lambdas: [0.001, 0.01, 0.1]
+projected: true

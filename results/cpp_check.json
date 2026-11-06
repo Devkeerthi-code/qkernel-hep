@@ -1,0 +1,164 @@
+[
+  {
+    "feature_map": "z",
+    "reps": 2,
+    "n_qubits": 2,
+    "N": 500,
+    "max_abs_diff": 8.881784197001252e-16,
+    "cpp_seconds": 0.001866,
+    "numpy_seconds": 0.005838460000006762
+  },
+  {
+    "feature_map": "z",
+    "reps": 2,
+    "n_qubits": 4,
+    "N": 500,
+    "max_abs_diff": 9.992007221626409e-16,
+    "cpp_seconds": 0.003834,
+    "numpy_seconds": 0.005656842999997025
+  },
+  {
+    "feature_map": "z",
+    "reps": 2,
+    "n_qubits": 6,
+    "N": 500,
+    "max_abs_diff": 1.4432899320127035e-15,
+    "cpp_seconds": 0.012031,
+    "numpy_seconds": 0.006388064000020677
+  },
+  {
+    "feature_map": "z",
+    "reps": 2,
+    "n_qubits": 8,
+    "N": 500,
+    "max_abs_diff": 2.886579864025407e-15,
+    "cpp_seconds": 0.045835,
+    "numpy_seconds": 0.02510286200003975
+  },
+  {
+    "feature_map": "z",
+    "reps": 2,
+    "n_qubits": 10,
+    "N": 500,
+    "max_abs_diff": 7.105427357601002e-15,
+    "cpp_seconds": 0.190024,
+    "numpy_seconds": 0.10069572499998003
+  },
+  {
+    "feature_map": "z",
+    "reps": 2,
+    "n_qubits": 12,
+    "N": 500,
+    "max_abs_diff": 1.3100631690576847e-14,
+    "cpp_seconds": 0.773098,
+    "numpy_seconds": 0.5212547149999978
+  },
+  {
+    "feature_map": "zz",
+    "reps": 1,
+    "n_qubits": 2,
+    "N": 500,
+    "max_abs_diff": 5.384581669432009e-15,
+    "cpp_seconds": 0.00257,
+    "numpy_seconds": 0.008637590999967415
+  },
+  {
+    "feature_map": "zz",
+    "reps": 1,
+    "n_qubits": 4,
+    "N": 500,
+    "max_abs_diff": 7.327471962526033e-15,
+    "cpp_seconds": 0.00382,
+    "numpy_seconds": 0.002804078999986359
+  },
+  {
+    "feature_map": "zz",
+    "reps": 1,
+    "n_qubits": 6,
+    "N": 500,
+    "max_abs_diff": 5.051514762044462e-15,
+    "cpp_seconds": 0.012922,
+    "numpy_seconds": 0.005948595999996087
+  },
+  {
+    "feature_map": "zz",
+    "reps": 1,
+    "n_qubits": 8,
+    "N": 500,
+    "max_abs_diff": 1.7763568394002505e-15,
+    "cpp_seconds": 0.046239,
+    "numpy_seconds": 0.01676821299997755
+  },
+  {
+    "feature_map": "zz",
+    "reps": 1,
+    "n_qubits": 10,
+    "N": 500,
+    "max_abs_diff": 1.0824674490095276e-15,
+    "cpp_seconds": 0.303407,
+    "numpy_seconds": 0.062728624999977
+  },
+  {
+    "feature_map": "zz",
+    "reps": 1,
+    "n_qubits": 12,
+    "N": 500,
+    "max_abs_diff": 4.371503159461554e-16,
+    "cpp_seconds": 0.886095,
+    "numpy_seconds": 0.2540237309999611
+  },
+  {
+    "feature_map": "zz",
+    "reps": 2,
+    "n_qubits": 2,
+    "N": 500,
+    "max_abs_diff": 9.159339953157541e-15,
+    "cpp_seconds": 0.002089,
+    "numpy_seconds": 0.002648157999999512
+  },
+  {
+    "feature_map": "zz",
+    "reps": 2,
+    "n_qubits": 4,
+    "N": 500,
+    "max_abs_diff": 1.0658141036401503e-14,
+    "cpp_seconds": 0.005536,
+    "numpy_seconds": 0.0036348590000443437
+  },
+  {
+    "feature_map": "zz",
+    "reps": 2,
+    "n_qubits": 6,
+    "N": 500,
+    "max_abs_diff": 3.941291737419306e-15,
+    "cpp_seconds": 0.016486,
+    "numpy_seconds": 0.008169275999989623
+  },
+  {
+    "feature_map": "zz",
+    "reps": 2,
+    "n_qubits": 8,
+    "N": 500,
+    "max_abs_diff": 3.1086244689504383e-15,
+    "cpp_seconds": 0.04706,
+    "numpy_seconds": 0.023554934999992838
+  },
+  {
+    "feature_map": "zz",
+    "reps": 2,
+    "n_qubits": 10,
+    "N": 500,
+    "max_abs_diff": 3.9968028886505635e-15,
+    "cpp_seconds": 0.221752,
+    "numpy_seconds": 0.10268029399998113
+  },
+  {
+    "feature_map": "zz",
+    "reps": 2,
+    "n_qubits": 12,
+    "N": 500,
+    "max_abs_diff": 1.0436096431476471e-14,
+    "cpp_seconds": 0.962457,
+    "numpy_seconds": 0.4684184759999539
+  }
+]

@@ -1,0 +1,11 @@
+# H1-H4: qubits x feature map x bandwidth at N = 500, 5 seeds (375 quantum runs)
+name: main_grid
+data: data/atlas-higgs-challenge-2014-v2.csv.gz
+n_train: [500]
+n_test: 1000
+seeds: [0, 1, 2, 3, 4]
+qubits: [2, 4, 6, 8, 10]
+feature_maps: [{kind: z, reps: 2}, {kind: zz, reps: 1}, {kind: zz, reps: 2}]
+bandwidths: [0.05, 0.1, 0.25, 0.5, 1.0]
+lambdas: [0.001, 0.01, 0.1]
+projected: true
