@@ -5,3 +5,9 @@ scikit-learn==1.9.1
 matplotlib==3.11.2
 pyyaml==6.0.3
 pytest==9.1.1
+xgboost==3.4.1
+# quantum: Qiskit cross-check tests and IBM hardware runs (scripts/ibm_hardware_run.py)
+qiskit==2.6.2
+qiskit-machine-learning==0.9.1
+qiskit-ibm-runtime==0.51.0
+qiskit-aer==0.18.2
