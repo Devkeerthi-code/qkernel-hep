@@ -1,6 +1,7 @@
 // qkernel: exact statevector simulation of the Z / ZZ feature maps and the fidelity kernel.
 //
-// Build:  cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build cpp/build
+// Build:  cmake -S cpp -B cpp/build -DCMAKE_BUILD_TYPE=Release && cmake --build cpp/build --config Release
+//         (works with GCC, Clang and MSVC; on MSVC the binary is cpp/build/Release/qkernel.exe)
 // Usage:  qkernel <z|zz> <reps> <angles_train.bin> <angles_other.bin> <out_kernel.bin>
 //   input  .bin: int64 rows, int64 cols, then rows*cols float64 (row-major)
 //   output .bin: int64 rows_other, int64 rows_train, then the kernel matrix (float64)
@@ -20,6 +21,7 @@
 #include <vector>
 
 using cd = std::complex<double>;
+constexpr double kPi = 3.14159265358979323846;  // portable pi (the POSIX macro is missing on MSVC)
 
 struct Matrix {
   int64_t rows = 0, cols = 0;
@@ -59,7 +61,7 @@ static std::vector<cd> state(const double* x, int n, bool zz, int reps) {
       if ((b >> i) & 1) p += 2.0 * x[i];
     if (zz)
       for (int i = 0; i + 1 < n; ++i)
-        if ((((b >> i) ^ (b >> (i + 1))) & 1)) p += 2.0 * (M_PI - x[i]) * (M_PI - x[i + 1]);
+        if ((((b >> i) ^ (b >> (i + 1))) & 1)) p += 2.0 * (kPi - x[i]) * (kPi - x[i + 1]);
     phase[b] = p;
   }
   std::vector<cd> D(dim), psi(dim);

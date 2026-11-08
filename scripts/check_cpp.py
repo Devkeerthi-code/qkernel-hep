@@ -15,7 +15,20 @@ import numpy as np
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src import kernels  # noqa: E402
 
-BIN = Path(__file__).resolve().parents[1] / "cpp" / "build" / "qkernel"
+BUILD = Path(__file__).resolve().parents[1] / "cpp" / "build"
+
+
+def find_binary() -> Path:
+    """Single-config generators put the binary in build/; MSVC/Visual Studio in build/Release/."""
+    for sub in ("", "Release", "RelWithDebInfo", "Debug"):
+        for name in ("qkernel.exe", "qkernel"):
+            p = BUILD / sub / name
+            if p.is_file():
+                return p
+    raise FileNotFoundError(f"qkernel binary not found under {BUILD}; build it first (see cpp/qkernel.cpp)")
+
+
+BIN = None
 
 
 def write(path, X):
@@ -31,6 +44,9 @@ def read(path):
 
 
 def main():
+    global BIN
+    BIN = find_binary()
+    print(f"using {BIN}")
     rows = []
     rng = np.random.default_rng(0)
     with tempfile.TemporaryDirectory() as tmp:
