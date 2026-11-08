@@ -11,3 +11,7 @@ qiskit==2.6.2
 qiskit-machine-learning==0.9.1
 qiskit-ibm-runtime==0.51.0
 qiskit-aer==0.18.2
+# notebooks (build/execute notebooks/*.ipynb)
+nbformat==5.11.1
+nbclient==0.11.0
+ipykernel==7.4.0
