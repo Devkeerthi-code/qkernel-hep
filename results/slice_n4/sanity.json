@@ -1,0 +1,256 @@
+{
+  "config": {
+    "name": "slice_n4",
+    "data": "data/atlas-higgs-challenge-2014-v2.csv.gz",
+    "n_train": [
+      500
+    ],
+    "n_test": 1000,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "qubits": [
+      4
+    ],
+    "feature_maps": [
+      {
+        "kind": "zz",
+        "reps": 2
+      }
+    ],
+    "bandwidths": [
+      1.0
+    ],
+    "lambdas": [
+      0.001,
+      0.01,
+      0.1
+    ],
+    "projected": true
+  },
+  "features": [
+    "DER_mass_transverse_met_lep",
+    "DER_mass_vis",
+    "DER_pt_h",
+    "DER_deltar_tau_lep",
+    "DER_pt_tot",
+    "DER_sum_pt",
+    "DER_pt_ratio_lep_tau",
+    "DER_met_phi_centrality",
+    "PRI_tau_pt",
+    "PRI_tau_eta",
+    "PRI_lep_pt",
+    "PRI_lep_eta",
+    "PRI_met",
+    "PRI_met_sumet",
+    "PRI_jet_num",
+    "PRI_jet_all_pt",
+    "DPHI_tau_lep",
+    "DPHI_tau_met",
+    "DPHI_lep_met"
+  ],
+  "feature_has_bookkeeping": [],
+  "seeds": {
+    "0": {
+      "event_ids_disjoint": true,
+      "train_test_identical_feature_rows": 0,
+      "scaler_fitted_on_train_only": true,
+      "qsvm_auc_recomputed": 0.48042799999999997,
+      "qsvm_auc_in_runs": 0.48042799999999997,
+      "qsvm_auc_shuffled_train_labels": [
+        0.456864,
+        0.47055600000000003,
+        0.5280400000000001,
+        0.5026679999999999,
+        0.478488
+      ],
+      "K_Q": {
+        "offdiag_mean": 0.07874528634069282,
+        "offdiag_var": 0.006807877669760275,
+        "offdiag_median": 0.05241490259907315,
+        "frac_offdiag_below_0.01": 0.13536673346693387,
+        "eff_dim": 66.74373167099893,
+        "eff_dim_over_N": 0.13348746334199785
+      },
+      "K_PQK": {
+        "offdiag_mean": 0.04931435983929541,
+        "offdiag_var": 0.006312525224653685,
+        "offdiag_median": 0.018315638889538837,
+        "frac_offdiag_below_0.01": 0.37515831663326654,
+        "eff_dim": 93.22320920533862,
+        "eff_dim_over_N": 0.18644641841067724
+      },
+      "K_RBF": {
+        "offdiag_mean": 0.4975604546022801,
+        "offdiag_var": 0.06284755907653868,
+        "offdiag_median": 0.5068489598498824,
+        "frac_offdiag_below_0.01": 0.0010420841683366734,
+        "eff_dim": 3.2072546856014625,
+        "eff_dim_over_N": 0.006414509371202925
+      }
+    },
+    "1": {
+      "event_ids_disjoint": true,
+      "train_test_identical_feature_rows": 0,
+      "scaler_fitted_on_train_only": true,
+      "qsvm_auc_recomputed": 0.52014,
+      "qsvm_auc_in_runs": 0.52014,
+      "qsvm_auc_shuffled_train_labels": [
+        0.462576,
+        0.5025520000000001,
+        0.533628,
+        0.495408,
+        0.483704
+      ],
+      "K_Q": {
+        "offdiag_mean": 0.07882837306760342,
+        "offdiag_var": 0.007125883810232069,
+        "offdiag_median": 0.05147441204404116,
+        "frac_offdiag_below_0.01": 0.139374749498998,
+        "eff_dim": 65.30349274589955,
+        "eff_dim_over_N": 0.13060698549179908
+      },
+      "K_PQK": {
+        "offdiag_mean": 0.7729979202162157,
+        "offdiag_var": 0.007830138438936157,
+        "offdiag_median": 0.7788007830767658,
+        "frac_offdiag_below_0.01": 0.0,
+        "eff_dim": 1.649769694518556,
+        "eff_dim_over_N": 0.003299539389037112
+      },
+      "K_RBF": {
+        "offdiag_mean": 0.7964219161031737,
+        "offdiag_var": 0.01988572668366246,
+        "offdiag_median": 0.8260542446919554,
+        "frac_offdiag_below_0.01": 0.0,
+        "eff_dim": 1.5270317109379612,
+        "eff_dim_over_N": 0.0030540634218759223
+      }
+    },
+    "2": {
+      "event_ids_disjoint": true,
+      "train_test_identical_feature_rows": 0,
+      "scaler_fitted_on_train_only": true,
+      "qsvm_auc_recomputed": 0.5412359999999999,
+      "qsvm_auc_in_runs": 0.5412359999999999,
+      "qsvm_auc_shuffled_train_labels": [
+        0.49929999999999997,
+        0.5343,
+        0.509264,
+        0.5204759999999999,
+        0.510636
+      ],
+      "K_Q": {
+        "offdiag_mean": 0.0798166670429124,
+        "offdiag_var": 0.007284530095077429,
+        "offdiag_median": 0.052146760492343,
+        "frac_offdiag_below_0.01": 0.13539078156312626,
+        "eff_dim": 63.98804202916445,
+        "eff_dim_over_N": 0.1279760840583289
+      },
+      "K_PQK": {
+        "offdiag_mean": 0.7725750477621022,
+        "offdiag_var": 0.008192979112832273,
+        "offdiag_median": 0.7788007830715202,
+        "frac_offdiag_below_0.01": 0.0,
+        "eff_dim": 1.650559807609282,
+        "eff_dim_over_N": 0.003301119615218564
+      },
+      "K_RBF": {
+        "offdiag_mean": 0.2960917942649966,
+        "offdiag_var": 0.05938498810398621,
+        "offdiag_median": 0.23497252671533697,
+        "frac_offdiag_below_0.01": 0.04725450901803607,
+        "eff_dim": 6.722181666938975,
+        "eff_dim_over_N": 0.01344436333387795
+      }
+    },
+    "3": {
+      "event_ids_disjoint": true,
+      "train_test_identical_feature_rows": 0,
+      "scaler_fitted_on_train_only": true,
+      "qsvm_auc_recomputed": 0.546924,
+      "qsvm_auc_in_runs": 0.546924,
+      "qsvm_auc_shuffled_train_labels": [
+        0.5003,
+        0.5179,
+        0.502252,
+        0.51532,
+        0.519776
+      ],
+      "K_Q": {
+        "offdiag_mean": 0.07708719397570282,
+        "offdiag_var": 0.006759859262746071,
+        "offdiag_median": 0.05028684757185614,
+        "frac_offdiag_below_0.01": 0.1441442885771543,
+        "eff_dim": 68.13432477142271,
+        "eff_dim_over_N": 0.13626864954284543
+      },
+      "K_PQK": {
+        "offdiag_mean": 0.050350257467474346,
+        "offdiag_var": 0.006796411378965434,
+        "offdiag_median": 0.018315638976692465,
+        "frac_offdiag_below_0.01": 0.37838877755511025,
+        "eff_dim": 88.39469038930257,
+        "eff_dim_over_N": 0.17678938077860515
+      },
+      "K_RBF": {
+        "offdiag_mean": 0.2697302685365659,
+        "offdiag_var": 0.05623363826125914,
+        "offdiag_median": 0.20549604226906693,
+        "frac_offdiag_below_0.01": 0.0839438877755511,
+        "eff_dim": 7.6493489536434875,
+        "eff_dim_over_N": 0.015298697907286975
+      }
+    },
+    "4": {
+      "event_ids_disjoint": true,
+      "train_test_identical_feature_rows": 0,
+      "scaler_fitted_on_train_only": true,
+      "qsvm_auc_recomputed": 0.505496,
+      "qsvm_auc_in_runs": 0.505496,
+      "qsvm_auc_shuffled_train_labels": [
+        0.53984,
+        0.5158320000000001,
+        0.475468,
+        0.5006599999999999,
+        0.48434
+      ],
+      "K_Q": {
+        "offdiag_mean": 0.07670010134386071,
+        "offdiag_var": 0.006723546553756788,
+        "offdiag_median": 0.049965535335632895,
+        "frac_offdiag_below_0.01": 0.1422685370741483,
+        "eff_dim": 68.5812767061553,
+        "eff_dim_over_N": 0.1371625534123106
+      },
+      "K_PQK": {
+        "offdiag_mean": 0.04895776605275868,
+        "offdiag_var": 0.006349104470584628,
+        "offdiag_median": 0.01831563889101236,
+        "frac_offdiag_below_0.01": 0.37256112224448895,
+        "eff_dim": 93.20988895314211,
+        "eff_dim_over_N": 0.18641977790628422
+      },
+      "K_RBF": {
+        "offdiag_mean": 0.2199873243450767,
+        "offdiag_var": 0.05157621942395224,
+        "offdiag_median": 0.1374946754089036,
+        "frac_offdiag_below_0.01": 0.12982765531062124,
+        "eff_dim": 9.82601072860264,
+        "eff_dim_over_N": 0.01965202145720528
+      }
+    }
+  },
+  "ceiling_xgb_all30_features_N50000": 0.903186805,
+  "best_single_selected_feature_auc": {
+    "DER_mass_transverse_met_lep": 0.73756036,
+    "DPHI_lep_met": 0.72079689,
+    "PRI_tau_pt": 0.6956003
+  },
+  "random_state_offdiag_mean_reference": 0.0625
+}
