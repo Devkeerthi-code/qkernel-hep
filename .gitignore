@@ -3,3 +3,6 @@ cpp/build/
 __pycache__/
 .pytest_cache/
 *.pyc
+qiskit-ibm.json
+*.env
+results/hardware/pending_jobs.json
