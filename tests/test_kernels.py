@@ -80,6 +80,14 @@ def test_states_normalised():
     assert np.allclose(np.linalg.norm(S, axis=1), 1)
 
 
+def test_batching_does_not_change_states(monkeypatch):
+    X = np.random.default_rng(6).uniform(-np.pi, np.pi, (37, 6))
+    ref = kernels.statevectors(X, "zz", 2)
+    assert np.allclose(kernels.statevectors(X, "zz", 2, batch=5), ref, atol=1e-13, rtol=0)
+    monkeypatch.setattr(kernels, "MAX_BATCH_AMPLITUDES", 3 * 2**6)  # forces batches of 3 rows
+    assert np.allclose(kernels.statevectors(X, "zz", 2), ref, atol=1e-13, rtol=0)  # BLAS rounding only
+
+
 def test_test_by_train_matches_full_matrix():
     X = np.random.default_rng(2).uniform(-np.pi, np.pi, (30, 4))
     S = kernels.statevectors(X, "zz", 2)

@@ -65,12 +65,21 @@ def phase_vectors(X: np.ndarray, kind: str, entanglement: str = "linear") -> np.
     return phase
 
 
+MAX_BATCH_AMPLITUDES = 2**22  # ~64 MB per complex temporary; keeps 12-14 qubit runs within RAM
+
+
 def statevectors(X: np.ndarray, kind: str = "zz", reps: int = 2,
                  entanglement: str = "linear", batch: int = 4096) -> np.ndarray:
-    """Exact states |phi(x)> = U(x)|0...0> for every row of X. Returns (B, 2^n) complex."""
+    """Exact states |phi(x)> = U(x)|0...0> for every row of X. Returns (B, 2^n) complex.
+
+    Rows are processed in batches of at most `batch`, further capped so a batch holds at most
+    MAX_BATCH_AMPLITUDES amplitudes (no effect for n <= 10). Batching changes results only by
+    floating-point rounding (~1e-15, from BLAS using different kernels for different shapes).
+    """
     X = np.asarray(X, dtype=float)
     B, n = X.shape
     dim = 2**n
+    batch = max(1, min(batch, MAX_BATCH_AMPLITUDES // dim))
     out = np.empty((B, dim), dtype=complex)
     for s in range(0, B, batch):
         D = np.exp(1j * phase_vectors(X[s:s + batch], kind, entanglement))
