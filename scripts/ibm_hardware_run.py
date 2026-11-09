@@ -10,7 +10,8 @@ Both are compared with the exact statevector kernels on the same events.
     # 2. real hardware: prints a cost estimate and asks before submitting
     python scripts/ibm_hardware_run.py --mode real
     # 3. if the script was interrupted after submitting, collect results by job id
-    python scripts/ibm_hardware_run.py --mode real --retrieve <job_id> [<job_id> ...]
+    python scripts/ibm_hardware_run.py --mode real --retrieve
+    (with no ids it reads results/hardware/pending_jobs.json, including the original settings)
 
 Needs: pip install qiskit qiskit-ibm-runtime qiskit-aer, and an IBM account saved once with
 QiskitRuntimeService.save_account(...) (see docs/IBM_HARDWARE.md). The API key is never read
@@ -91,9 +92,9 @@ def get_backend(mode: str, name: str | None):
     return service.least_busy(operational=True, simulator=False, min_num_qubits=5)
 
 
-def run_sampler(backend, circuits, shots, mode, retrieve_ids=None):
+def run_sampler(backend, circuits, shots, mode, retrieve_ids=None, config=None):
     """Returns (list of counts dicts, job ids, usage seconds or None)."""
-    if retrieve_ids:
+    if retrieve_ids is not None:
         service = QiskitRuntimeService()
         jobs = [service.job(j) for j in retrieve_ids]
     else:
@@ -105,7 +106,8 @@ def run_sampler(backend, circuits, shots, mode, retrieve_ids=None):
         if mode == "real":
             ids = [j.job_id() for j in jobs]
             (ROOT / "results" / "hardware").mkdir(parents=True, exist_ok=True)
-            (ROOT / "results" / "hardware" / "pending_jobs.json").write_text(json.dumps(ids))
+            (ROOT / "results" / "hardware" / "pending_jobs.json").write_text(json.dumps(
+                {"job_ids": ids, "backend": backend.name, "n_circuits": len(circuits), "config": config}, indent=2))
             print("job ids saved to results/hardware/pending_jobs.json; use --retrieve if interrupted")
     counts, usage = [], 0.0
     for j in jobs:
@@ -139,8 +141,23 @@ def main():
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--no-fidelity", action="store_true", help="only run the (much cheaper) projected kernel")
     ap.add_argument("--yes", action="store_true", help="skip the confirmation prompt for real hardware")
-    ap.add_argument("--retrieve", nargs="*", default=None, help="job ids to collect instead of submitting")
+    ap.add_argument("--retrieve", nargs="*", default=None,
+                    help="collect finished jobs instead of submitting; no ids = read results/hardware/pending_jobs.json")
     args = ap.parse_args()
+
+    if args.retrieve is not None and not args.retrieve:
+        pending = json.loads((ROOT / "results" / "hardware" / "pending_jobs.json").read_text())
+        if isinstance(pending, dict):
+            args.retrieve = pending["job_ids"]
+            for k, v in (pending.get("config") or {}).items():
+                if k not in ("mode", "retrieve", "yes"):
+                    setattr(args, k, v)
+            args.backend = pending.get("backend", args.backend)
+            print(f"retrieving {len(args.retrieve)} job(s) on {args.backend} with the original settings")
+        else:  # older file: ids only, settings must be given on the command line exactly as submitted
+            args.retrieve = pending
+            print("WARNING: pending_jobs.json has no saved settings; pass the same --n --kind --reps --c "
+                  "--ntrain --ntest --seed --backend as the original run, or results will be wrong")
 
     df, cols = data.select_features(data.load(args.data))
     d = data.prepare(df, cols, args.n, args.ntrain, args.ntest, args.seed)
@@ -178,7 +195,7 @@ def main():
     twoq = int(np.mean([sum(v for k, v in c.count_ops().items() if k in ("cx", "cz", "ecr")) for c in isa]))
     print(f"{len(isa)} circuits, mean depth {depth}, mean 2-qubit gates {twoq} (transpiled in {time.perf_counter() - t0:.1f}s)")
 
-    if args.mode == "real" and not args.retrieve:
+    if args.mode == "real" and args.retrieve is None:
         est = len(isa) * args.shots * 3e-4 + 5 * (len(isa) // CHUNK + 1)
         print(f"ROUGH QPU time estimate: ~{est / 60:.1f} min "
               f"({len(isa)} circuits x {args.shots} shots). The free Open Plan gives 10 min per 28 days.")
@@ -186,7 +203,11 @@ def main():
             print("Not submitted.")
             return
 
-    counts, job_ids, usage = run_sampler(backend, isa, args.shots, args.mode, args.retrieve)
+    config = {k: v for k, v in vars(args).items() if k not in ("retrieve", "yes")}
+    counts, job_ids, usage = run_sampler(backend, isa, args.shots, args.mode, args.retrieve, config)
+    if len(counts) != len(isa):
+        raise SystemExit(f"got {len(counts)} results but these settings make {len(isa)} circuits: "
+                         "the settings do not match the submitted run")
     tags_arr = np.array(tags)
     out = {"timestamp": datetime.now(timezone.utc).isoformat(), "mode": args.mode, "backend": backend.name,
            "job_ids": job_ids, "quantum_seconds": usage, "config": vars(args), "n_circuits": len(isa),

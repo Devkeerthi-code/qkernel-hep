@@ -45,7 +45,15 @@ Jobs wait in a queue, possibly for hours; job ids are saved to `results/hardware
 If you close the terminal, collect results later with:
 
 ```powershell
-python scripts/ibm_hardware_run.py --mode real --retrieve <job_id> <job_id> ...
+python scripts/ibm_hardware_run.py --mode real --retrieve
+```
+
+With no ids it reads `results/hardware/pending_jobs.json`, which stores the job ids and the original
+settings, and refuses to analyse results if the settings do not match the submitted circuits.
+To collect specific jobs instead, list their ids after `--retrieve` and repeat the original settings:
+
+```powershell
+python scripts/ibm_hardware_run.py --mode real --retrieve <job_id> <job_id> --n 4 --c 0.25 ...
 ```
 
 To spend fewer minutes, run only the projected kernel (3 circuits per event instead of one
