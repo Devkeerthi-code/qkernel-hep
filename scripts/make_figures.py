@@ -896,7 +896,50 @@ def fig8(table: pd.DataFrame, rob: dict | None):
     return save(fig, "fig8_h2_feature_selection")
 
 
-def main():
+def figures_only(which: list[int]) -> list[Path]:
+    """Regenerate only the requested figures from results/; summary_table.csv and h2_analysis.json are not touched."""
+    style()
+    d = load_all()
+    runs = d["runs"]
+    main_runs = runs[runs.experiment.isin(MAIN) & (runs.n_train == 500)]
+    table = summary_table(runs) if {2, 8} & set(which) else None
+    paths: list[Path] = []
+    for f in which:
+        if f == 1:
+            paths += fig1(main_runs)
+        elif f == 2:
+            mt = table[table.experiment.isin(MAIN) & (table.n_train == 500)]
+            paths += fig2(table, test_h2(mt, extra=False))
+        elif f == 3:
+            paths += fig3(runs)
+        elif f == 4:
+            paths += fig4(runs)
+        elif f == 5:
+            paths += fig5()
+        elif f == 6:
+            paths += fig6(d["noise"], d["hardware"])
+        elif f == 7:
+            paths += fig7(runs)
+        elif f == 8:
+            ns = sorted(runs[runs.experiment == "fs_gbdt"].n_qubits.unique())
+            tp = table[(table.experiment == "main_grid") & table.n_qubits.isin(ns)]
+            tf = table[table.experiment == "fs_gbdt"]
+            rob = ({"pca": {"H2": test_h2(tp, extra=False)}, "feature_selection": {"H2": test_h2(tf, extra=False)}}
+                   if len(tf) else None)
+            paths += fig8(table, rob)
+    return paths
+
+
+def main(argv: list[str] | None = None):
+    import argparse
+    ap = argparse.ArgumentParser(description="Figures, summary table and hypothesis tests (see module docstring).")
+    ap.add_argument("--fig", type=int, nargs="+", choices=range(1, 9), metavar="N",
+                    help="only regenerate figure(s) N (1-8) from results/, without rewriting the analysis files")
+    args = ap.parse_args(argv)
+    if args.fig:
+        paths = figures_only(args.fig)
+        print("wrote " + (", ".join(p.relative_to(ROOT).as_posix() for p in paths) or "nothing (inputs missing)"))
+        return
     style()
     hyp = load_hypotheses()
     d = load_all()

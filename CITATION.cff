@@ -1,0 +1,58 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it using the metadata below."
+type: software
+title: "qkernel-hep: does the geometric difference predict when a quantum kernel helps? A test on ATLAS H→ττ events"
+version: "1.0"
+license: MIT
+authors:
+  - given-names: Dev Keerthi
+    family-names: P
+repository-code: "https://github.com/Devkeerthi-code/qkernel-hep"
+abstract: >-
+  Code, results and report for a test of whether the geometric difference g of Huang et al. (2021)
+  predicts how fidelity and projected quantum kernels compare with tuned classical models
+  (logistic regression, RBF-SVM, XGBoost) on simulated ATLAS H→ττ events from the Higgs Boson
+  Machine Learning Challenge 2014. Four hypotheses written before the experiments are tested over
+  Z and ZZ feature maps, 2-14 qubits and a bandwidth sweep, with a noise study, an IBM hardware run
+  and a feature-selection robustness check. Tuned classical baselines match or beat every quantum
+  kernel, and g does not correlate positively with the quantum-minus-classical AUC gap.
+keywords:
+  - quantum machine learning
+  - quantum kernels
+  - projected quantum kernel
+  - geometric difference
+  - kernel concentration
+  - high-energy physics
+  - ATLAS
+  - Higgs boson
+references:
+  - type: article
+    title: "Power of data in quantum machine learning"
+    authors:
+      - given-names: Hsin-Yuan
+        family-names: Huang
+      - given-names: Michael
+        family-names: Broughton
+      - given-names: Masoud
+        family-names: Mohseni
+      - given-names: Ryan
+        family-names: Babbush
+      - given-names: Sergio
+        family-names: Boixo
+      - given-names: Hartmut
+        family-names: Neven
+      - given-names: Jarrod R.
+        family-names: McClean
+    journal: "Nature Communications"
+    volume: 12
+    start: 2631
+    year: 2021
+    doi: "10.1038/s41467-021-22539-9"
+  - type: data
+    title: "Dataset from the ATLAS Higgs Boson Machine Learning Challenge 2014"
+    authors:
+      - name: "ATLAS Collaboration"
+    publisher:
+      name: "CERN Open Data Portal"
+    year: 2014
+    doi: "10.7483/OPENDATA.ATLAS.ZBP2.M5T8"

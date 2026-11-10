@@ -1,0 +1,8 @@
+# Minimal install for regenerating every figure from the committed results (scripts/make_figures.py).
+# Same pins as requirements.txt; use requirements.txt for tests, experiments and hardware runs.
+numpy==2.5.3
+scipy==1.18.1
+pandas==3.0.5
+scikit-learn==1.9.1
+matplotlib==3.11.2
+pyyaml==6.0.3
