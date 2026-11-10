@@ -1,0 +1,1154 @@
+{
+  "hypotheses": {
+    "H1": "a quantum kernel is competitive with, or beats, tuned classical models",
+    "H2": "g(K_C || K_Q) predicts the AUC gap",
+    "H3": "kernel concentration (off-diagonal variance shrinking with n) degrades the QSVM",
+    "H4": "at fixed n, smaller bandwidth c avoids concentration and restores AUC"
+  },
+  "significance_rule": "mean difference over seeds within one seed-to-seed sd (paired, ddof=1) -> 'not significant'; correlations: 95% bootstrap CI over configurations containing 0",
+  "verdicts": {
+    "H1": {
+      "held": "no: no reliable advantage; competitive only at small n",
+      "detail": "2 of 34 (model, map, n) combinations beat the RBF-SVM by more than the seed spread (fidelity QSVM ZZ map, reps 1 n=2: +0.0066 \u00b1 0.0044, fidelity QSVM ZZ map, reps 2 n=2: +0.0077 \u00b1 0.0038); ~1.5 such positive hits are expected by chance under a true gap of 0 with this lenient 1-sd rule; 0 beat the best of the three classical models. 17 of 34 are not significantly worse than the RBF-SVM (fidelity QSVM: 10 of 17), mostly the Z map and n <= 4; ZZ maps fall significantly behind from n = 6 on"
+    },
+    "H2": {
+      "held": "no: g does not predict the gap in the hypothesised direction",
+      "detail": "(pooled, lambda=0.01) rho(g, gap) = -0.44 [-0.61, -0.22]; (b) partial | log var = -0.66 [-0.75, -0.54]; (a) within map: Z map, reps 2 -0.77 [-0.90, -0.56], ZZ map, reps 1 -0.27 [-0.66, 0.21], ZZ map, reps 2 -0.06 [-0.45, 0.40]; lambda=0.1 pooled 0.34 [0.09, 0.54] but partial | log var 0.03 [-0.19, 0.25], i.e. explained by kernel variance; (c) label-aware log(s_C/s_Q): pooled -0.63 [-0.75, -0.48], partial -0.61 [-0.73, -0.44] -- also negative, and computed where Huang's bound is vacuous (see label_aware.bound_regime)"
+    },
+    "H3": {
+      "held": "yes for concentration towards 1/2^n; low variance alone is not sufficient",
+      "detail": "ZZ maps at c >= 0.25: variance falls by 0.27-0.49 decades per qubit; rho(log var, QSVM AUC) = 0.40 [0.18, 0.58]; concentrated kernels (var < 1e-3, mean < 0.1, 17 configs) median AUC 0.550, max 0.720; near-constant kernels (var < 1e-3, mean > 0.5, 5 configs, Z map c=0.05) median AUC 0.782"
+    },
+    "H4": {
+      "held": "yes for ZZ maps",
+      "detail": "n=4 Z map, reps 2: c*=0.25, AUC 0.788 vs 0.670 at c=1 (smaller c better); n=4 ZZ map, reps 1: c*=0.05, AUC 0.789 vs 0.493 at c=1 (smaller c better); n=4 ZZ map, reps 2: c*=0.05, AUC 0.785 vs 0.519 at c=1 (smaller c better); n=8 Z map, reps 2: c*=0.25, AUC 0.813 vs 0.707 at c=1 (smaller c better); n=8 ZZ map, reps 1: c*=0.05, AUC 0.804 vs 0.499 at c=1 (smaller c better); n=8 ZZ map, reps 2: c*=0.05, AUC 0.796 vs 0.511 at c=1 (smaller c better)"
+    },
+    "caveat": "hypotheses phrased after the grid was run: exploratory, not pre-registered"
+  },
+  "H2": {
+    "unit": "configuration mean over 5 seeds (main_grid + big_qubits, N_train=500)",
+    "n_configs": 79,
+    "gap": "fidelity QSVM AUC - best classical AUC (gap_vs_best)",
+    "expected_sign": "H2 predicts rho > 0 (larger g -> more room for a quantum advantage)",
+    "pooled": {
+      "lambda=0": {
+        "rho": -0.5018500486854918,
+        "p": 2.455528897643392e-06,
+        "ci_low": -0.6509066966064799,
+        "ci_high": -0.319690256205963,
+        "n": 79,
+        "label": "significant"
+      },
+      "lambda=0.001": {
+        "rho": -0.6263145082765337,
+        "p": 6.686706848447095e-10,
+        "ci_low": -0.7398107123426397,
+        "ci_high": -0.45842403985779073,
+        "n": 79,
+        "label": "significant"
+      },
+      "lambda=0.01": {
+        "rho": -0.4396543330087634,
+        "p": 5.03642878396411e-05,
+        "ci_low": -0.6070399697893272,
+        "ci_high": -0.22307149055536546,
+        "n": 79,
+        "label": "significant"
+      },
+      "lambda=0.1": {
+        "rho": 0.33610029211295034,
+        "p": 0.00245910266195445,
+        "ci_low": 0.09192117299751183,
+        "ci_high": 0.5448917381616752,
+        "n": 79,
+        "label": "significant"
+      },
+      "log_kernel_variance": {
+        "rho": 0.5142891918208374,
+        "p": 1.2459585037652063e-06,
+        "ci_low": 0.30443192888737336,
+        "ci_high": 0.681013717244361,
+        "n": 79,
+        "label": "significant"
+      }
+    },
+    "within_feature_map": {
+      "lambda=0": {
+        "Z map, reps 2": {
+          "rho": -0.6246153846153846,
+          "p": 0.0008449110535915371,
+          "ci_low": -0.8555589695712569,
+          "ci_high": -0.289196037312111,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.36846153846153845,
+          "p": 0.06993034335673072,
+          "ci_low": -0.6531552458381725,
+          "ci_high": -0.011410740058593799,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.25418719211822655,
+          "p": 0.18331857707959756,
+          "ci_low": -0.5501926111596604,
+          "ci_high": 0.12160594105360864,
+          "n": 29,
+          "label": "not significant"
+        }
+      },
+      "lambda=0.001": {
+        "Z map, reps 2": {
+          "rho": -0.793076923076923,
+          "p": 2.267185739165565e-06,
+          "ci_low": -0.9201573571383553,
+          "ci_high": -0.56563132287756,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.42692307692307696,
+          "p": 0.03330297468786219,
+          "ci_low": -0.6873593833718232,
+          "ci_high": -0.00617788779442027,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.36896551724137927,
+          "p": 0.04887691509985932,
+          "ci_low": -0.6632582924464552,
+          "ci_high": 0.06315261289065266,
+          "n": 29,
+          "label": "not significant"
+        }
+      },
+      "lambda=0.01": {
+        "Z map, reps 2": {
+          "rho": -0.7738461538461539,
+          "p": 5.6870254292604226e-06,
+          "ci_low": -0.8987662367135034,
+          "ci_high": -0.5557081517328445,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.26692307692307693,
+          "p": 0.19710580890279145,
+          "ci_low": -0.6558617870720728,
+          "ci_high": 0.20553468904963354,
+          "n": 25,
+          "label": "not significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.06453201970443348,
+          "p": 0.7394542125298721,
+          "ci_low": -0.45173691905113844,
+          "ci_high": 0.39528824897955755,
+          "n": 29,
+          "label": "not significant"
+        }
+      },
+      "lambda=0.1": {
+        "Z map, reps 2": {
+          "rho": -0.4884615384615385,
+          "p": 0.013231702100754339,
+          "ci_low": -0.7735581952517517,
+          "ci_high": -0.09545412662321343,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": 0.4976923076923077,
+          "p": 0.011355430955701394,
+          "ci_low": 0.06842166942203116,
+          "ci_high": 0.7772297742043458,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": 0.5940886699507388,
+          "p": 0.0006790032941605633,
+          "ci_low": 0.22905125302387672,
+          "ci_high": 0.8144999158013801,
+          "n": 29,
+          "label": "significant"
+        }
+      }
+    },
+    "partial_controlling_log_var": {
+      "lambda=0": {
+        "rho": -0.7242999126655176,
+        "ci_low": -0.822240635366472,
+        "ci_high": -0.5851022770304601,
+        "n": 79,
+        "label": "significant"
+      },
+      "lambda=0.001": {
+        "rho": -0.7713145923413132,
+        "ci_low": -0.8405338901658721,
+        "ci_high": -0.6718713355966291,
+        "n": 79,
+        "label": "significant"
+      },
+      "lambda=0.01": {
+        "rho": -0.659240910987601,
+        "ci_low": -0.7536206159823163,
+        "ci_high": -0.5429456505932975,
+        "n": 79,
+        "label": "significant"
+      },
+      "lambda=0.1": {
+        "rho": 0.033868443825248735,
+        "ci_low": -0.18721394637295863,
+        "ci_high": 0.2509321930100402,
+        "n": 79,
+        "label": "not significant"
+      }
+    },
+    "within_feature_map_partial": {
+      "lambda=0": {
+        "Z map, reps 2": {
+          "rho": -0.820071877612131,
+          "ci_low": -0.9241553148682533,
+          "ci_high": -0.5874797482063457,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.6181434964200387,
+          "ci_low": -0.8075411758582923,
+          "ci_high": -0.26509441297570663,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.6630028533321444,
+          "ci_low": -0.8429406252096497,
+          "ci_high": -0.28101606804522605,
+          "n": 29,
+          "label": "significant"
+        }
+      },
+      "lambda=0.001": {
+        "Z map, reps 2": {
+          "rho": -0.8855283730132095,
+          "ci_low": -0.9465855494144426,
+          "ci_high": -0.6960314719964243,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.5852856131617671,
+          "ci_low": -0.7697356555135356,
+          "ci_high": -0.2775499512108245,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.6620360805146639,
+          "ci_low": -0.8208525160347555,
+          "ci_high": -0.37860207558304965,
+          "n": 29,
+          "label": "significant"
+        }
+      },
+      "lambda=0.01": {
+        "Z map, reps 2": {
+          "rho": -0.8398722473872401,
+          "ci_low": -0.9287263746072679,
+          "ci_high": -0.6203418998731814,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.4905960397332563,
+          "ci_low": -0.7276115570052096,
+          "ci_high": -0.1387449458913837,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.6123202643526025,
+          "ci_low": -0.7912002424424598,
+          "ci_high": -0.3428854411147516,
+          "n": 29,
+          "label": "significant"
+        }
+      },
+      "lambda=0.1": {
+        "Z map, reps 2": {
+          "rho": -0.4849382559724518,
+          "ci_low": -0.7664352694435798,
+          "ci_high": -0.08307835143087405,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.30900272012551017,
+          "ci_low": -0.5643752683673872,
+          "ci_high": 0.14656589924972588,
+          "n": 25,
+          "label": "not significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.40102640539804063,
+          "ci_low": -0.6115200777844696,
+          "ci_high": -0.04872586120786482,
+          "n": 29,
+          "label": "significant"
+        }
+      }
+    },
+    "label_aware": {
+      "definition": "log10(s_classical / s_quantum); s = ridge-regularised model complexity (src.metrics.model_complexity, a stand-in for Huang et al.'s s_K(N))",
+      "pooled": {
+        "rho": -0.6289435248296008,
+        "p": 5.400800455748466e-10,
+        "ci_low": -0.7496662121075856,
+        "ci_high": -0.4831808984246665,
+        "n": 79,
+        "label": "significant"
+      },
+      "partial_controlling_log_var": {
+        "rho": -0.6058270016823153,
+        "ci_low": -0.7306280416865669,
+        "ci_high": -0.44248569344098,
+        "n": 79,
+        "label": "significant"
+      },
+      "within_feature_map": {
+        "Z map, reps 2": {
+          "rho": -0.5061538461538462,
+          "p": 0.00983438033370213,
+          "ci_low": -0.7717856545540045,
+          "ci_high": -0.1235952491709311,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 1": {
+          "rho": -0.5584615384615385,
+          "p": 0.003714882330530533,
+          "ci_low": -0.805346616887726,
+          "ci_high": -0.22499248295763116,
+          "n": 25,
+          "label": "significant"
+        },
+        "ZZ map, reps 2": {
+          "rho": -0.640886699507389,
+          "p": 0.00017997120664064962,
+          "ci_low": -0.8236794489950614,
+          "ci_high": -0.3278642849750935,
+          "n": 29,
+          "label": "significant"
+        }
+      },
+      "ratio_minus_g": {
+        "lambda=0": {
+          "diff": -0.12709347614410904,
+          "ci_low": -0.28504100196395665,
+          "ci_high": 0.020625472075777963,
+          "label": "not significant"
+        },
+        "lambda=0.001": {
+          "diff": -0.0026290165530671317,
+          "ci_low": -0.1471542332926973,
+          "ci_high": 0.13912231712439133,
+          "label": "not significant"
+        },
+        "lambda=0.01": {
+          "diff": -0.18928919182083742,
+          "ci_low": -0.39684343387263216,
+          "ci_high": -0.00040246952791000366,
+          "label": "significant"
+        },
+        "lambda=0.1": {
+          "diff": -0.9650438169425511,
+          "ci_low": -1.2153046861185033,
+          "ci_high": -0.65337203181803,
+          "label": "significant"
+        }
+      },
+      "ratio_minus_log_var": {
+        "diff": -1.1432327166504384,
+        "ci_low": -1.3613786548504563,
+        "ci_high": -0.8826825437318618,
+        "label": "significant"
+      },
+      "note": "H2 expects rho > 0. ratio_minus_g is the signed difference of the two Spearman rhos: a CI excluding 0 means the two quantities differ in how they track the gap",
+      "bound_regime": {
+        "s_classical_min": 4.391080373036189,
+        "s_classical_median": 36.642649293002215,
+        "fraction_s_classical_below_1": 0.0,
+        "fraction_s_quantum_below_1": 0.22784810126582278,
+        "spearman_s_quantum_vs_qsvm_auc": {
+          "rho": 0.7978578383641675,
+          "p": 1.3432155412469029e-18,
+          "ci_low": 0.6979962483985181,
+          "ci_high": 0.858259166573756,
+          "n": 79,
+          "label": "significant"
+        },
+        "median_s_quantum_when_var_below_1e-3": 1.0672896432128627,
+        "interpretation": "s = alpha^T K alpha / N equals Huang et al.'s s_K(N)/N, so their bound ~ sqrt(s) is vacuous for s >~ 1. s_classical is never below 1 here, and near-identity (concentrated) quantum kernels get s_quantum ~ 1 because they memorise the labels; the ratio s_C/s_Q therefore mostly flags memorising kernels, which generalise worst. The label-aware test is run outside the regime where the bound means anything."
+      }
+    },
+    "classification": {
+      "definition": "AUC for separating configurations whose gap is not significantly negative",
+      "n_competitive": 21,
+      "n_total": 79,
+      "g_lam0.01": 0.20935960591133002,
+      "g_lam0": 0.2586206896551724,
+      "log_s_ratio": 0.25041050903119866,
+      "log_var": 0.632183908045977
+    },
+    "projected_kernel_pooled": {
+      "lambda=0.01": {
+        "rho": -0.515603700097371,
+        "p": 1.157928432803261e-06,
+        "ci_low": -0.7019179109481786,
+        "ci_high": -0.29537676195940976,
+        "n": 79,
+        "label": "significant"
+      }
+    }
+  },
+  "H1": [
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 2,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7336952,
+      "gap_vs_rbf": 0.001886399999999977,
+      "gap_vs_rbf_sd": 0.007067166108137021,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.003556399999999993,
+      "gap_vs_best_sd": 0.004491136693533126,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 4,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7894936,
+      "gap_vs_rbf": 0.002875199999999989,
+      "gap_vs_rbf_sd": 0.005207544834180468,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": 0.0019191999999999653,
+      "gap_vs_best_sd": 0.003672063616006613,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 6,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7976015999999999,
+      "gap_vs_rbf": 0.0041327999999999365,
+      "gap_vs_rbf_sd": 0.010407894080936796,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.0001208000000000098,
+      "gap_vs_best_sd": 0.008147070958326022,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 8,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.8093696000000001,
+      "gap_vs_rbf": -0.005367199999999972,
+      "gap_vs_rbf_sd": 0.00963683533116553,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.007623999999999964,
+      "gap_vs_best_sd": 0.011314893901402731,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 10,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.8169903999999999,
+      "gap_vs_rbf": -0.004852000000000056,
+      "gap_vs_rbf_sd": 0.01479378166663275,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.0050900000000000615,
+      "gap_vs_best_sd": 0.014689405570001776,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 2,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7383624,
+      "gap_vs_rbf": 0.006553599999999937,
+      "gap_vs_rbf_sd": 0.004426903748671336,
+      "gap_vs_rbf_label": "quantum better",
+      "gap_vs_best": 0.0011107999999999674,
+      "gap_vs_best_sd": 0.0035358279369901136,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 4,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7883743999999998,
+      "gap_vs_rbf": 0.001756000000000002,
+      "gap_vs_rbf_sd": 0.007469354456711762,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": 0.0007999999999999785,
+      "gap_vs_best_sd": 0.00655743669431889,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 6,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7850936,
+      "gap_vs_rbf": -0.008375200000000116,
+      "gap_vs_rbf_sd": 0.01233468131732626,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.012628800000000062,
+      "gap_vs_best_sd": 0.006073495303365291,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 8,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.8019727999999999,
+      "gap_vs_rbf": -0.012763999999999952,
+      "gap_vs_rbf_sd": 0.00898710854502161,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.015020799999999945,
+      "gap_vs_best_sd": 0.010141192592589906,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 10,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7994544,
+      "gap_vs_rbf": -0.02238800000000001,
+      "gap_vs_rbf_sd": 0.016537810012211444,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.022626000000000014,
+      "gap_vs_best_sd": 0.01646425096990449,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 2,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7395240000000001,
+      "gap_vs_rbf": 0.007715199999999989,
+      "gap_vs_rbf_sd": 0.0037840987302130594,
+      "gap_vs_rbf_label": "quantum better",
+      "gap_vs_best": 0.002272400000000019,
+      "gap_vs_best_sd": 0.003449562986814401,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 4,
+      "n_seeds": 10,
+      "bandwidths_searched": 5,
+      "auc": 0.7802136,
+      "gap_vs_rbf": -0.006404799999999966,
+      "gap_vs_rbf_sd": 0.007913036849261973,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.007360799999999989,
+      "gap_vs_best_sd": 0.0069550109321744845,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 6,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7799528,
+      "gap_vs_rbf": -0.013516000000000061,
+      "gap_vs_rbf_sd": 0.013511669030878429,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.017769600000000007,
+      "gap_vs_best_sd": 0.0076080785222026465,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 8,
+      "n_seeds": 10,
+      "bandwidths_searched": 5,
+      "auc": 0.7831464,
+      "gap_vs_rbf": -0.03159039999999994,
+      "gap_vs_rbf_sd": 0.01700186627141594,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.03384719999999993,
+      "gap_vs_best_sd": 0.016552399629996595,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 10,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7936704,
+      "gap_vs_rbf": -0.02817200000000002,
+      "gap_vs_rbf_sd": 0.021688657127632377,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.028410000000000026,
+      "gap_vs_best_sd": 0.02168810844679634,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 12,
+      "n_seeds": 5,
+      "bandwidths_searched": 2,
+      "auc": 0.7542335999999998,
+      "gap_vs_rbf": -0.06276160000000008,
+      "gap_vs_rbf_sd": 0.022232343034417276,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.06638800000000007,
+      "gap_vs_best_sd": 0.020205237340848073,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "fidelity QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 14,
+      "n_seeds": 5,
+      "bandwidths_searched": 2,
+      "auc": 0.7505143999999999,
+      "gap_vs_rbf": -0.06798640000000004,
+      "gap_vs_rbf_sd": 0.0149197441264922,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.07058800000000007,
+      "gap_vs_best_sd": 0.01691341124670001,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 2,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7301832000000001,
+      "gap_vs_rbf": -0.0016255999999999827,
+      "gap_vs_rbf_sd": 0.008102934085872876,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.007068399999999952,
+      "gap_vs_best_sd": 0.007065688982682389,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 4,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7894024,
+      "gap_vs_rbf": 0.002784000000000031,
+      "gap_vs_rbf_sd": 0.005598865599387098,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": 0.0018280000000000074,
+      "gap_vs_best_sd": 0.0043671794100998695,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 6,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.798292,
+      "gap_vs_rbf": 0.004823199999999961,
+      "gap_vs_rbf_sd": 0.006549075293505173,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": 0.0005696000000000145,
+      "gap_vs_best_sd": 0.006823855713597657,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 8,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.8142135999999999,
+      "gap_vs_rbf": -0.0005231999999999904,
+      "gap_vs_rbf_sd": 0.004188556219032885,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.0027799999999999826,
+      "gap_vs_best_sd": 0.004318791497629789,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "Z map, reps 2",
+      "n_qubits": 10,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.8202992,
+      "gap_vs_rbf": -0.0015432000000000334,
+      "gap_vs_rbf_sd": 0.006750735900625978,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.0017812000000000383,
+      "gap_vs_best_sd": 0.006781022872694095,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 2,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7251968,
+      "gap_vs_rbf": -0.0066120000000001065,
+      "gap_vs_rbf_sd": 0.008513736195114389,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.012054800000000077,
+      "gap_vs_best_sd": 0.004779517465184087,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 4,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7641055999999999,
+      "gap_vs_rbf": -0.02251280000000002,
+      "gap_vs_rbf_sd": 0.019335394984328565,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.023468800000000047,
+      "gap_vs_best_sd": 0.018821223849686243,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 6,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7507672000000001,
+      "gap_vs_rbf": -0.04270160000000005,
+      "gap_vs_rbf_sd": 0.017191514325387427,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.046955199999999996,
+      "gap_vs_best_sd": 0.016126778264737185,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 8,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7480408000000001,
+      "gap_vs_rbf": -0.06669599999999995,
+      "gap_vs_rbf_sd": 0.02432148482309414,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.06895279999999995,
+      "gap_vs_best_sd": 0.02123184879373436,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 1",
+      "n_qubits": 10,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7407424,
+      "gap_vs_rbf": -0.08110000000000002,
+      "gap_vs_rbf_sd": 0.022474649719183604,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.08133800000000002,
+      "gap_vs_best_sd": 0.02258066739491992,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 2,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7352768000000001,
+      "gap_vs_rbf": 0.0034680000000000045,
+      "gap_vs_rbf_sd": 0.005163257111552804,
+      "gap_vs_rbf_label": "not significant",
+      "gap_vs_best": -0.0019747999999999654,
+      "gap_vs_best_sd": 0.005035881968434137,
+      "gap_vs_best_label": "not significant"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 4,
+      "n_seeds": 10,
+      "bandwidths_searched": 5,
+      "auc": 0.7650292,
+      "gap_vs_rbf": -0.021589199999999985,
+      "gap_vs_rbf_sd": 0.010124209410012078,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.02254520000000001,
+      "gap_vs_best_sd": 0.009298253131039616,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 6,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7610912,
+      "gap_vs_rbf": -0.032377600000000076,
+      "gap_vs_rbf_sd": 0.019692041966235977,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.036631200000000017,
+      "gap_vs_best_sd": 0.01484175748353276,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 8,
+      "n_seeds": 10,
+      "bandwidths_searched": 5,
+      "auc": 0.7609079999999999,
+      "gap_vs_rbf": -0.05382879999999994,
+      "gap_vs_rbf_sd": 0.01378923107033561,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.05608559999999994,
+      "gap_vs_best_sd": 0.012776593627063097,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 10,
+      "n_seeds": 5,
+      "bandwidths_searched": 5,
+      "auc": 0.7578536,
+      "gap_vs_rbf": -0.06398879999999998,
+      "gap_vs_rbf_sd": 0.015118237304659604,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.06422679999999999,
+      "gap_vs_best_sd": 0.015411340733369097,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 12,
+      "n_seeds": 5,
+      "bandwidths_searched": 2,
+      "auc": 0.7429560000000001,
+      "gap_vs_rbf": -0.07403920000000004,
+      "gap_vs_rbf_sd": 0.0284148798202632,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.07766560000000003,
+      "gap_vs_best_sd": 0.024593682050477954,
+      "gap_vs_best_label": "classical better"
+    },
+    {
+      "model": "projected QSVM",
+      "feature_map": "ZZ map, reps 2",
+      "n_qubits": 14,
+      "n_seeds": 5,
+      "bandwidths_searched": 2,
+      "auc": 0.7463496,
+      "gap_vs_rbf": -0.07215120000000005,
+      "gap_vs_rbf_sd": 0.022252365878710545,
+      "gap_vs_rbf_label": "classical better",
+      "gap_vs_best": -0.07475280000000009,
+      "gap_vs_best_sd": 0.023942187435570726,
+      "gap_vs_best_label": "classical better"
+    }
+  ],
+  "H3": {
+    "variance_slope_vs_qubits": [
+      {
+        "feature_map": "Z map, reps 2",
+        "bandwidth": 0.05,
+        "n_range": "2-10",
+        "log10_var_per_qubit": 0.0797959450093969,
+        "slope_ci95": 0.02148767797032683,
+        "r2": 0.9464074302322143,
+        "label": "increasing"
+      },
+      {
+        "feature_map": "Z map, reps 2",
+        "bandwidth": 0.1,
+        "n_range": "2-10",
+        "log10_var_per_qubit": 0.07028327025197952,
+        "slope_ci95": 0.021069806818302044,
+        "r2": 0.9344204217749161,
+        "label": "increasing"
+      },
+      {
+        "feature_map": "Z map, reps 2",
+        "bandwidth": 0.25,
+        "n_range": "2-10",
+        "log10_var_per_qubit": 0.014054704335611035,
+        "slope_ci95": 0.009907647462043843,
+        "r2": 0.7204262912907972,
+        "label": "increasing"
+      },
+      {
+        "feature_map": "Z map, reps 2",
+        "bandwidth": 0.5,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.10482199067302231,
+        "slope_ci95": 0.009908604444494935,
+        "r2": 0.9930703816236386,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "Z map, reps 2",
+        "bandwidth": 1.0,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.20232288956941424,
+        "slope_ci95": 0.008526506838847293,
+        "r2": 0.9986149691868912,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 1",
+        "bandwidth": 0.05,
+        "n_range": "2-10",
+        "log10_var_per_qubit": 0.04383296206467345,
+        "slope_ci95": 0.03030650956444971,
+        "r2": 0.728163294586934,
+        "label": "increasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 1",
+        "bandwidth": 0.1,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.059312308861235896,
+        "slope_ci95": 0.018862172647522425,
+        "r2": 0.9268034636037492,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 1",
+        "bandwidth": 0.25,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.2745800121148365,
+        "slope_ci95": 0.029523552986228916,
+        "r2": 0.9910524291731093,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 1",
+        "bandwidth": 0.5,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.42376233600019575,
+        "slope_ci95": 0.02528340823650559,
+        "r2": 0.9972277652705629,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 1",
+        "bandwidth": 1.0,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.48117558968587826,
+        "slope_ci95": 0.01249882105300611,
+        "r2": 0.999473363128248,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 2",
+        "bandwidth": 0.05,
+        "n_range": "2-10",
+        "log10_var_per_qubit": 0.03476679962353126,
+        "slope_ci95": 0.05442785090128261,
+        "r2": 0.3431812159825736,
+        "label": "not significant"
+      },
+      {
+        "feature_map": "ZZ map, reps 2",
+        "bandwidth": 0.1,
+        "n_range": "2-14",
+        "log10_var_per_qubit": -0.10635433101185922,
+        "slope_ci95": 0.012498149018444761,
+        "r2": 0.9823435936324817,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 2",
+        "bandwidth": 0.25,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.31709519690340354,
+        "slope_ci95": 0.03027411633164707,
+        "r2": 0.9929320694570906,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 2",
+        "bandwidth": 0.5,
+        "n_range": "2-10",
+        "log10_var_per_qubit": -0.45451433241825434,
+        "slope_ci95": 0.0093593073502332,
+        "r2": 0.9996689774496424,
+        "label": "decreasing"
+      },
+      {
+        "feature_map": "ZZ map, reps 2",
+        "bandwidth": 1.0,
+        "n_range": "2-14",
+        "log10_var_per_qubit": -0.4889917076566079,
+        "slope_ci95": 0.010246769875621594,
+        "r2": 0.9994288098587838,
+        "label": "decreasing"
+      }
+    ],
+    "spearman_log_var_vs_qsvm_auc": {
+      "rho": 0.4026046738072055,
+      "p": 0.0002347488007163637,
+      "ci_low": 0.1787724537785132,
+      "ci_high": 0.579615915367808,
+      "n": 79,
+      "label": "significant"
+    },
+    "configs_with_var_below_1e-3": 22,
+    "low_variance_regimes": {
+      "concentrated: var < 1e-3 and off-diagonal mean < 0.1": {
+        "n_configs": 17,
+        "qsvm_auc_median": 0.5499031999999999,
+        "qsvm_auc_max": 0.7202648,
+        "configs": [
+          "ZZ map, reps 1 c=0.25",
+          "ZZ map, reps 1 c=0.5",
+          "ZZ map, reps 1 c=1",
+          "ZZ map, reps 2 c=0.25",
+          "ZZ map, reps 2 c=0.5",
+          "ZZ map, reps 2 c=1"
+        ]
+      },
+      "near-constant: var < 1e-3 and off-diagonal mean > 0.5": {
+        "n_configs": 5,
+        "qsvm_auc_median": 0.781716,
+        "qsvm_auc_max": 0.8035128,
+        "configs": [
+          "Z map, reps 2 c=0.05"
+        ]
+      }
+    },
+    "note": "off-diagonal variance alone does not identify failure: nearly constant kernels (Z map, small c) also have small variance but still classify well in exact simulation; they would be fragile under shot noise, which the noise study did not test"
+  },
+  "H4": [
+    {
+      "n_qubits": 4,
+      "feature_map": "Z map, reps 2",
+      "c_best_by_cv": 0.25,
+      "auc_at_c_best": 0.787812,
+      "auc_at_c1": 0.670236,
+      "auc_gain_vs_c1": 0.11757599999999999,
+      "auc_gain_sd": 0.04411718513232687,
+      "auc_gain_label": "smaller c better",
+      "log10_var_at_c_best": -1.609530213999858,
+      "log10_var_at_c1": -1.4753770275381861,
+      "c_with_max_g_lam0.01": 1.0,
+      "c_with_max_auc_is_c_with_max_g": false
+    },
+    {
+      "n_qubits": 4,
+      "feature_map": "ZZ map, reps 1",
+      "c_best_by_cv": 0.05,
+      "auc_at_c_best": 0.7887048,
+      "auc_at_c1": 0.49313759999999995,
+      "auc_gain_vs_c1": 0.2955672,
+      "auc_gain_sd": 0.028536270730423093,
+      "auc_gain_label": "smaller c better",
+      "log10_var_at_c_best": -1.4675593715945696,
+      "log10_var_at_c1": -2.2027963931999017,
+      "c_with_max_g_lam0.01": 0.25,
+      "c_with_max_auc_is_c_with_max_g": false
+    },
+    {
+      "n_qubits": 4,
+      "feature_map": "ZZ map, reps 2",
+      "c_best_by_cv": 0.05,
+      "auc_at_c_best": 0.7851656,
+      "auc_at_c1": 0.5188447999999999,
+      "auc_gain_vs_c1": 0.2663208000000001,
+      "auc_gain_sd": 0.01997344505086688,
+      "auc_gain_label": "smaller c better",
+      "log10_var_at_c_best": -1.2607461770987833,
+      "log10_var_at_c1": -2.1588423815061253,
+      "c_with_max_g_lam0.01": 0.25,
+      "c_with_max_auc_is_c_with_max_g": false
+    },
+    {
+      "n_qubits": 8,
+      "feature_map": "Z map, reps 2",
+      "c_best_by_cv": 0.25,
+      "auc_at_c_best": 0.8126648,
+      "auc_at_c1": 0.7071112,
+      "auc_gain_vs_c1": 0.1055536,
+      "auc_gain_sd": 0.013880061267876284,
+      "auc_gain_label": "smaller c better",
+      "log10_var_at_c_best": -1.5683000812327168,
+      "log10_var_at_c1": -2.3318315534794385,
+      "c_with_max_g_lam0.01": 1.0,
+      "c_with_max_auc_is_c_with_max_g": false
+    },
+    {
+      "n_qubits": 8,
+      "feature_map": "ZZ map, reps 1",
+      "c_best_by_cv": 0.05,
+      "auc_at_c_best": 0.8044872,
+      "auc_at_c1": 0.4992888,
+      "auc_gain_vs_c1": 0.3051984,
+      "auc_gain_sd": 0.016533363021478738,
+      "auc_gain_label": "smaller c better",
+      "log10_var_at_c_best": -1.3472604751601072,
+      "log10_var_at_c1": -4.1477246675050745,
+      "c_with_max_g_lam0.01": 0.25,
+      "c_with_max_auc_is_c_with_max_g": false
+    },
+    {
+      "n_qubits": 8,
+      "feature_map": "ZZ map, reps 2",
+      "c_best_by_cv": 0.05,
+      "auc_at_c_best": 0.7960248,
+      "auc_at_c1": 0.5107976,
+      "auc_gain_vs_c1": 0.2852272,
+      "auc_gain_sd": 0.024542235823168224,
+      "auc_gain_label": "smaller c better",
+      "log10_var_at_c_best": -1.2759742475876354,
+      "log10_var_at_c1": -4.087489617250492,
+      "c_with_max_g_lam0.01": 0.1,
+      "c_with_max_auc_is_c_with_max_g": false
+    }
+  ]
+}
