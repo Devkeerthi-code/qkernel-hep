@@ -21,6 +21,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
 import time
 from datetime import datetime, timezone
@@ -39,6 +40,19 @@ from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager  
 from qiskit_ibm_runtime import QiskitRuntimeService, SamplerV2  # noqa: E402
 
 CHUNK = 250  # circuits per job
+
+
+def use_os_trust_store() -> None:
+    """Verify TLS against the operating system's certificate store instead of certifi's bundle.
+
+    Needed when antivirus or a proxy re-signs HTTPS traffic with its own root certificate
+    (e.g. Norton Web/Mail Shield), which the OS trusts but certifi does not. Verification stays on.
+    """
+    try:
+        import truststore
+    except ImportError:
+        return
+    truststore.inject_into_ssl()
 
 
 def feature_map_circuit(x: np.ndarray, kind: str, reps: int) -> QuantumCircuit:
@@ -92,8 +106,30 @@ def get_backend(mode: str, name: str | None):
     return service.least_busy(operational=True, simulator=False, min_num_qubits=5)
 
 
-def run_sampler(backend, circuits, shots, mode, retrieve_ids=None, config=None):
-    """Returns (list of counts dicts, job ids, usage seconds or None)."""
+PENDING = ROOT / "results" / "hardware" / "pending_jobs.json"
+
+
+def retrieve_command(backend_name: str, ids: list[str]) -> str:
+    """The exact command that collects these jobs later (same analysis arguments, same device)."""
+    skip = {"--submit-only", "--yes", "--estimate-only"}
+    argv, out, i = sys.argv[1:], [], 0
+    while i < len(argv):
+        if argv[i] in skip:
+            i += 1
+        elif argv[i] == "--backend":
+            i += 2
+        else:
+            out.append(argv[i])
+            i += 1
+    return " ".join(["python scripts/ibm_hardware_run.py", *out, "--backend", backend_name, "--retrieve", *ids])
+
+
+def run_sampler(backend, circuits, shots, mode, retrieve_ids=None, submit_only=False, config=None):
+    """Returns (list of counts dicts, job ids, usage seconds or None); with submit_only, (None, ids, None).
+
+    On real hardware the job ids (plus the arguments needed to retrieve them) are written to
+    results/hardware/pending_jobs.json after every submitted chunk, so nothing is lost if interrupted.
+    """
     if retrieve_ids is not None:
         service = QiskitRuntimeService()
         jobs = [service.job(j) for j in retrieve_ids]
@@ -102,21 +138,28 @@ def run_sampler(backend, circuits, shots, mode, retrieve_ids=None, config=None):
         jobs = []
         for s in range(0, len(circuits), CHUNK):
             jobs.append(sampler.run(circuits[s:s + CHUNK], shots=shots))
-            print(f"submitted job {jobs[-1].job_id()} ({min(s + CHUNK, len(circuits))}/{len(circuits)} circuits)")
+            print(f"submitted job {jobs[-1].job_id()} ({min(s + CHUNK, len(circuits))}/{len(circuits)} circuits)",
+                  flush=True)
+            if mode == "real":
+                ids = [j.job_id() for j in jobs]
+                PENDING.parent.mkdir(parents=True, exist_ok=True)
+                PENDING.write_text(json.dumps({
+                    "submitted_utc": datetime.now(timezone.utc).isoformat(), "backend": backend.name,
+                    "job_ids": ids, "n_circuits": len(circuits), "config": config,
+                    "retrieve_command": retrieve_command(backend.name, ids)}, indent=2))
         if mode == "real":
-            ids = [j.job_id() for j in jobs]
-            (ROOT / "results" / "hardware").mkdir(parents=True, exist_ok=True)
-            (ROOT / "results" / "hardware" / "pending_jobs.json").write_text(json.dumps(
-                {"job_ids": ids, "backend": backend.name, "n_circuits": len(circuits), "config": config}, indent=2))
-            print("job ids saved to results/hardware/pending_jobs.json; use --retrieve if interrupted")
+            print(f"job ids saved to {PENDING.relative_to(ROOT)}")
+            print("collect results later with:\n  " + retrieve_command(backend.name, [j.job_id() for j in jobs]))
+        if submit_only:
+            return None, [j.job_id() for j in jobs], None
     counts, usage = [], 0.0
     for j in jobs:
         res = j.result()
         counts += [r.data.meas.get_counts() for r in res]
         try:
-            usage += float(j.usage())
+            usage = None if usage is None else usage + float(j.usage())
         except Exception:
-            usage = None if usage == 0.0 else usage
+            usage = None
     return counts, [j.job_id() for j in jobs], usage
 
 
@@ -143,14 +186,20 @@ def main():
     ap.add_argument("--yes", action="store_true", help="skip the confirmation prompt for real hardware")
     ap.add_argument("--retrieve", nargs="*", default=None,
                     help="collect finished jobs instead of submitting; no ids = read results/hardware/pending_jobs.json")
+    ap.add_argument("--estimate-only", action="store_true",
+                    help="real mode: print the device, circuit count and QPU-time estimate, then exit")
+    ap.add_argument("--submit-only", action="store_true",
+                    help="real mode: submit, save job ids, print the --retrieve command and exit without waiting")
     args = ap.parse_args()
+    if args.mode == "real":
+        use_os_trust_store()
 
     if args.retrieve is not None and not args.retrieve:
         pending = json.loads((ROOT / "results" / "hardware" / "pending_jobs.json").read_text())
         if isinstance(pending, dict):
             args.retrieve = pending["job_ids"]
             for k, v in (pending.get("config") or {}).items():
-                if k not in ("mode", "retrieve", "yes"):
+                if k not in ("mode", "retrieve", "yes", "submit_only", "estimate_only", "data"):
                     setattr(args, k, v)
             args.backend = pending.get("backend", args.backend)
             print(f"retrieving {len(args.retrieve)} job(s) on {args.backend} with the original settings")
@@ -199,18 +248,30 @@ def main():
         est = len(isa) * args.shots * 3e-4 + 5 * (len(isa) // CHUNK + 1)
         print(f"ROUGH QPU time estimate: ~{est / 60:.1f} min "
               f"({len(isa)} circuits x {args.shots} shots). The free Open Plan gives 10 min per 28 days.")
-        if not args.yes and input("Submit to real hardware? [y/N] ").strip().lower() != "y":
-            print("Not submitted.")
+        if args.estimate_only:
+            print(f"Estimate only, nothing submitted. To submit to this same device add: --backend {backend.name}")
             return
+        if not args.yes:
+            try:
+                answer = input("Submit to real hardware? [y/N] ")
+            except EOFError:  # no terminal attached: never submit by default
+                answer = ""
+            if answer.strip().lower() != "y":
+                print("Not submitted.")
+                return
 
-    config = {k: v for k, v in vars(args).items() if k not in ("retrieve", "yes")}
-    counts, job_ids, usage = run_sampler(backend, isa, args.shots, args.mode, args.retrieve, config)
+    config = {k: v for k, v in vars(args).items() if k not in ("retrieve", "yes", "data")}
+    counts, job_ids, usage = run_sampler(backend, isa, args.shots, args.mode, args.retrieve,
+                                         submit_only=args.submit_only and args.retrieve is None, config=config)
+    if counts is None:
+        print("Submitted; not waiting for results (--submit-only).")
+        return
     if len(counts) != len(isa):
         raise SystemExit(f"got {len(counts)} results but these settings make {len(isa)} circuits: "
                          "the settings do not match the submitted run")
     tags_arr = np.array(tags)
     out = {"timestamp": datetime.now(timezone.utc).isoformat(), "mode": args.mode, "backend": backend.name,
-           "job_ids": job_ids, "quantum_seconds": usage, "config": vars(args), "n_circuits": len(isa),
+           "job_ids": job_ids, "quantum_seconds": usage, "config": {**vars(args), "data": os.path.relpath(args.data, ROOT)}, "n_circuits": len(isa),
            "mean_depth": depth, "mean_2q_gates": twoq, "gamma_projected": gamma}
 
     # ---- fidelity kernel
