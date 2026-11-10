@@ -1,0 +1,22 @@
+=== 2026-11-08 23:36:28 start configs/big_qubits.yaml (attempt 1)
+N=500 n=12 seed=0 zz2 c=0.1: Q=0.759 best_cl=0.791 g=2.46 var=1.12e-02
+N=500 n=12 seed=0 zz2 c=1.0: Q=0.481 best_cl=0.791 g=5.00 var=7.44e-07
+N=500 n=12 seed=1 zz2 c=0.1: Q=0.758 best_cl=0.836 g=8.56 var=5.18e-03
+N=500 n=12 seed=1 zz2 c=1.0: Q=0.532 best_cl=0.836 g=5.02 var=8.16e-07
+N=500 n=12 seed=2 zz2 c=0.1: Q=0.747 best_cl=0.828 g=6.44 var=1.02e-02
+N=500 n=12 seed=2 zz2 c=1.0: Q=0.522 best_cl=0.828 g=5.04 var=8.49e-07
+N=500 n=12 seed=3 zz2 c=0.1: Q=0.753 best_cl=0.817 g=2.28 var=6.35e-03
+N=500 n=12 seed=3 zz2 c=1.0: Q=0.545 best_cl=0.817 g=4.99 var=8.21e-07
+N=500 n=12 seed=4 zz2 c=0.1: Q=0.754 best_cl=0.830 g=5.63 var=5.00e-03
+N=500 n=12 seed=4 zz2 c=1.0: Q=0.507 best_cl=0.830 g=5.02 var=7.91e-07
+N=500 n=14 seed=0 zz2 c=0.1: Q=0.754 best_cl=0.798 g=5.51 var=8.67e-03
+N=500 n=14 seed=0 zz2 c=1.0: Q=0.503 best_cl=0.798 g=5.00 var=7.22e-08
+N=500 n=14 seed=1 zz2 c=0.1: Q=0.749 best_cl=0.829 g=5.22 var=3.82e-03
+N=500 n=14 seed=1 zz2 c=1.0: Q=0.546 best_cl=0.829 g=5.00 var=7.06e-08
+N=500 n=14 seed=2 zz2 c=0.1: Q=0.753 best_cl=0.819 g=10.80 var=8.16e-03
+N=500 n=14 seed=2 zz2 c=1.0: Q=0.526 best_cl=0.819 g=5.00 var=7.99e-08
+N=500 n=14 seed=3 zz2 c=0.1: Q=0.750 best_cl=0.822 g=10.01 var=4.82e-03
+N=500 n=14 seed=3 zz2 c=1.0: Q=0.534 best_cl=0.822 g=5.00 var=7.10e-08
+N=500 n=14 seed=4 zz2 c=0.1: Q=0.747 best_cl=0.836 g=5.00 var=2.98e-03
+N=500 n=14 seed=4 zz2 c=1.0: Q=0.505 best_cl=0.836 g=5.00 var=7.52e-08
+=== 2026-11-08 23:53:31 done configs/big_qubits.yaml

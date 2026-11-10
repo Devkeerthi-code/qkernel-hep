@@ -1,0 +1,51 @@
+{
+  "config": {
+    "name": "n_sweep",
+    "data": "data/atlas-higgs-challenge-2014-v2.csv.gz",
+    "n_train": [
+      100,
+      250,
+      500,
+      1000
+    ],
+    "n_test": 1000,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "qubits": [
+      4,
+      8
+    ],
+    "feature_maps": [
+      {
+        "kind": "zz",
+        "reps": 2
+      }
+    ],
+    "bandwidths": [
+      0.1,
+      1.0
+    ],
+    "lambdas": [
+      0.001,
+      0.01,
+      0.1
+    ],
+    "projected": true
+  },
+  "versions": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "pandas": "3.0.5",
+    "sklearn": "1.9.1",
+    "xgboost": "3.4.1",
+    "yaml": "6.0.3"
+  },
+  "git_commit": "cd7a0f76f7738815fbad5abe0abf7d42ece9455b"
+}
