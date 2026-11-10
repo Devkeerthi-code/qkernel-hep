@@ -1,0 +1,45 @@
+{
+  "timestamp": "2026-11-08T15:40:47.801150+00:00",
+  "mode": "fake",
+  "backend": "fake_torino",
+  "job_ids": [
+    "e844e6db-5f15-4161-9dd8-d647c53e1d69",
+    "20b3b2a2-f165-4e5e-9a51-14422387fa91",
+    "590ea9fc-47a9-4a0e-a8ea-b31c346def19",
+    "55252fc0-30b9-42f7-8e00-5aabf9587d02"
+  ],
+  "quantum_seconds": 0.0,
+  "config": {
+    "mode": "fake",
+    "backend": null,
+    "data": "data\\atlas-higgs-challenge-2014-v2.csv.gz",
+    "n": 4,
+    "kind": "zz",
+    "reps": 1,
+    "c": 0.25,
+    "ntrain": 24,
+    "ntest": 24,
+    "shots": 500,
+    "seed": 0,
+    "no_fidelity": false,
+    "yes": false,
+    "retrieve": null
+  },
+  "n_circuits": 996,
+  "mean_depth": 41,
+  "mean_2q_gates": 9,
+  "gamma_projected": 0.830244907739711,
+  "fidelity": {
+    "auc_exact": 0.5902777777777778,
+    "auc_hardware": 0.6041666666666667,
+    "kernel_mae_train": 0.00950032975222169,
+    "kernel_mae_test": 0.00857171076319243,
+    "offdiag_mean_exact": 0.06928734669498021,
+    "offdiag_mean_hardware": 0.06915942028985493
+  },
+  "projected": {
+    "auc_exact": 0.6111111111111112,
+    "auc_hardware": 0.6597222222222222,
+    "bloch_mae": 0.035936771834979335
+  }
+}
