@@ -89,7 +89,14 @@ def save(fig, name: str) -> list[Path]:
     out = []
     for ext in ("pdf", "png"):
         p = FIG / f"{name}.{ext}"
-        fig.savefig(p, dpi=200, bbox_inches="tight")
+        # no creation timestamp in the PDF, so regenerating identical figures leaves git clean
+        fig.savefig(p, dpi=200, bbox_inches="tight", metadata={"CreationDate": None} if ext == "pdf" else None)
+        out.append(p)
+    if fig._suptitle is not None:  # title-free copy for the report, whose captions carry the titles
+        fig._suptitle.set_visible(False)
+        (FIG / "notitle").mkdir(exist_ok=True)
+        p = FIG / "notitle" / f"{name}.pdf"
+        fig.savefig(p, bbox_inches="tight", metadata={"CreationDate": None})
         out.append(p)
     plt.close(fig)
     return out
@@ -314,6 +321,19 @@ def test_h2(table: pd.DataFrame, extra: bool = True) -> dict:
     for col, lam in LAMBDAS:
         out["pooled"][f"lambda={lam:g}"] = spearman_ci(table[col], gap)
     out["pooled"]["log_kernel_variance (reference)"] = spearman_ci(table.log_var, gap)
+    # Huang et al.'s own use of g is a necessary condition: an advantage needs g >~ sqrt(N)
+    n_train = sorted(int(v) for v in table.n_train.unique())
+    if len(n_train) == 1:
+        thr = float(np.sqrt(n_train[0]))
+        nc = {"N_train": n_train[0], "sqrt_N": thr, "n_configs": int(len(table)), "by_lambda": {}}
+        for col, lam in LAMBDAS:
+            above = table[table[col] > thr]
+            nc["by_lambda"][f"lambda={lam:g}"] = {
+                "max_g": float(table[col].max()), "n_above_sqrt_N": int(len(above)),
+                "gap_labels_above": {str(k): int(v) for k, v in above.gap_vs_best_label.value_counts().items()},
+                "gap_labels_below": {str(k): int(v) for k, v in
+                                     table[table[col] <= thr].gap_vs_best_label.value_counts().items()}}
+        out["huang_necessary_condition"] = nc
     if extra:
         out["partial_controlling_log_var"], out["within_feature_map"], out["within_feature_map_partial"] = {}, {}, {}
         for col, lam in LAMBDAS:
@@ -892,6 +912,7 @@ def main():
         "data": "main_grid + big_qubits: PCA, N_train = 500, N_test = 1000, 5 seeds",
         "significance_rule": ("seed-paired mean difference within one seed-to-seed sd (ddof=1) -> 'not significant'; "
                               "correlations: 95% bootstrap CI over configurations containing 0 -> 'not significant'"),
+        "bootstrap_resamples": N_BOOT,
         "operational_choices": {
             "concentration": "off-diagonal variance of the training kernel matrix",
             "headline_g": f"{G_HEADLINE} (regularised g, as in Fig. 4); lambda = 0, 1e-3, 1e-1 reported alongside",

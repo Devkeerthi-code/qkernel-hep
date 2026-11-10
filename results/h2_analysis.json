@@ -21,6 +21,7 @@
   "provenance": "written in the project guide on 7 Nov 2026, before any experiment was run; not formally pre-registered",
   "data": "main_grid + big_qubits: PCA, N_train = 500, N_test = 1000, 5 seeds",
   "significance_rule": "seed-paired mean difference within one seed-to-seed sd (ddof=1) -> 'not significant'; correlations: 95% bootstrap CI over configurations containing 0 -> 'not significant'",
+  "bootstrap_resamples": 2000,
   "operational_choices": {
     "concentration": "off-diagonal variance of the training kernel matrix",
     "headline_g": "g_lam0.01 (regularised g, as in Fig. 4); lambda = 0, 1e-3, 1e-1 reported alongside",
@@ -606,6 +607,55 @@
         "ci_high": 0.681013717244361,
         "n": 79,
         "label": "significant"
+      }
+    },
+    "huang_necessary_condition": {
+      "N_train": 500,
+      "sqrt_N": 22.360679774997898,
+      "n_configs": 79,
+      "by_lambda": {
+        "lambda=0": {
+          "max_g": 339172.6004010301,
+          "n_above_sqrt_N": 61,
+          "gap_labels_above": {
+            "classical better": 50,
+            "not significant": 11
+          },
+          "gap_labels_below": {
+            "not significant": 10,
+            "classical better": 8
+          }
+        },
+        "lambda=0.001": {
+          "max_g": 49.656300243527326,
+          "n_above_sqrt_N": 17,
+          "gap_labels_above": {
+            "classical better": 16,
+            "not significant": 1
+          },
+          "gap_labels_below": {
+            "classical better": 42,
+            "not significant": 20
+          }
+        },
+        "lambda=0.01": {
+          "max_g": 19.620774044175143,
+          "n_above_sqrt_N": 0,
+          "gap_labels_above": {},
+          "gap_labels_below": {
+            "classical better": 58,
+            "not significant": 21
+          }
+        },
+        "lambda=0.1": {
+          "max_g": 7.371279098434821,
+          "n_above_sqrt_N": 0,
+          "gap_labels_above": {},
+          "gap_labels_below": {
+            "classical better": 58,
+            "not significant": 21
+          }
+        }
       }
     },
     "partial_controlling_log_var": {
@@ -2474,6 +2524,54 @@
             "label": "significant"
           }
         },
+        "huang_necessary_condition": {
+          "N_train": 500,
+          "sqrt_N": 22.360679774997898,
+          "n_configs": 30,
+          "by_lambda": {
+            "lambda=0": {
+              "max_g": 61863.8677721643,
+              "n_above_sqrt_N": 22,
+              "gap_labels_above": {
+                "classical better": 18,
+                "not significant": 4
+              },
+              "gap_labels_below": {
+                "not significant": 5,
+                "classical better": 3
+              }
+            },
+            "lambda=0.001": {
+              "max_g": 39.68097327482477,
+              "n_above_sqrt_N": 7,
+              "gap_labels_above": {
+                "classical better": 7
+              },
+              "gap_labels_below": {
+                "classical better": 14,
+                "not significant": 9
+              }
+            },
+            "lambda=0.01": {
+              "max_g": 15.056635514944858,
+              "n_above_sqrt_N": 0,
+              "gap_labels_above": {},
+              "gap_labels_below": {
+                "classical better": 21,
+                "not significant": 9
+              }
+            },
+            "lambda=0.1": {
+              "max_g": 5.539369713070277,
+              "n_above_sqrt_N": 0,
+              "gap_labels_above": {},
+              "gap_labels_below": {
+                "classical better": 21,
+                "not significant": 9
+              }
+            }
+          }
+        },
         "partial_controlling_log_var": {
           "lambda=0": {
             "rho": -0.8221032520617423,
@@ -3746,6 +3844,55 @@
             "ci_high": 0.8304278992373332,
             "n": 30,
             "label": "significant"
+          }
+        },
+        "huang_necessary_condition": {
+          "N_train": 500,
+          "sqrt_N": 22.360679774997898,
+          "n_configs": 30,
+          "by_lambda": {
+            "lambda=0": {
+              "max_g": 130005.43126613903,
+              "n_above_sqrt_N": 25,
+              "gap_labels_above": {
+                "classical better": 22,
+                "not significant": 3
+              },
+              "gap_labels_below": {
+                "classical better": 3,
+                "not significant": 2
+              }
+            },
+            "lambda=0.001": {
+              "max_g": 47.98125423796894,
+              "n_above_sqrt_N": 14,
+              "gap_labels_above": {
+                "classical better": 13,
+                "not significant": 1
+              },
+              "gap_labels_below": {
+                "classical better": 12,
+                "not significant": 4
+              }
+            },
+            "lambda=0.01": {
+              "max_g": 16.97748781805595,
+              "n_above_sqrt_N": 0,
+              "gap_labels_above": {},
+              "gap_labels_below": {
+                "classical better": 25,
+                "not significant": 5
+              }
+            },
+            "lambda=0.1": {
+              "max_g": 6.664629145452039,
+              "n_above_sqrt_N": 0,
+              "gap_labels_above": {},
+              "gap_labels_below": {
+                "classical better": 25,
+                "not significant": 5
+              }
+            }
           }
         },
         "partial_controlling_log_var": {
