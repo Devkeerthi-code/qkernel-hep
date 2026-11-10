@@ -1,0 +1,60 @@
+{
+  "config": {
+    "name": "fs_gbdt",
+    "data": "data/atlas-higgs-challenge-2014-v2.csv.gz",
+    "reduction": "gbdt_importance",
+    "n_train": [
+      500
+    ],
+    "n_test": 1000,
+    "seeds": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "qubits": [
+      4,
+      8
+    ],
+    "feature_maps": [
+      {
+        "kind": "z",
+        "reps": 2
+      },
+      {
+        "kind": "zz",
+        "reps": 1
+      },
+      {
+        "kind": "zz",
+        "reps": 2
+      }
+    ],
+    "bandwidths": [
+      0.05,
+      0.1,
+      0.25,
+      0.5,
+      1.0
+    ],
+    "lambdas": [
+      0.001,
+      0.01,
+      0.1
+    ],
+    "projected": true
+  },
+  "versions": {
+    "python": "3.12.10",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "numpy": "2.5.3",
+    "scipy": "1.18.1",
+    "pandas": "3.0.5",
+    "sklearn": "1.9.1",
+    "xgboost": "3.4.1",
+    "yaml": "6.0.3"
+  },
+  "git_commit": "fefc04710b0535e7d5ef13a7294849a83658eb9f"
+}
