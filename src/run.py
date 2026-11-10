@@ -104,6 +104,7 @@ def run(cfg: dict, out_root: str = "results", df=None, verbose: bool = True) -> 
         df = data.load(cfg["data"])
     df, cols = data.select_features(df, cfg.get("angle_diffs", True), cfg.get("mmc_flag", False))
     lambdas = cfg.get("lambdas", [1e-3, 1e-2, 1e-1])
+    reduction = cfg.get("reduction", "pca")
     fmaps = cfg["feature_maps"]
     projected = cfg.get("projected", False)
 
@@ -114,7 +115,7 @@ def run(cfg: dict, out_root: str = "results", df=None, verbose: bool = True) -> 
                 if _key({**base, "feature_map": fm["kind"], "reps": fm["reps"], "bandwidth": c}) not in done]
         if not todo:
             continue
-        d = data.prepare(df, cols, n, N, cfg.get("n_test", 1000), seed)
+        d = data.prepare(df, cols, n, N, cfg.get("n_test", 1000), seed, reduction)
         t0 = time.perf_counter()
         base_res = classical.run_baselines(d["X_train"], d["y_train"], d["X_test"], d["y_test"], seed)
         cls_s = time.perf_counter() - t0
@@ -124,10 +125,19 @@ def run(cfg: dict, out_root: str = "results", df=None, verbose: bool = True) -> 
                "gbdt_auc": base_res["gbdt"]["auc"], "gbdt_impl": base_res["gbdt"]["impl"],
                "rbf_gamma": gamma, "rbf_C": base_res["rbf_svm"]["params"]["C"],
                "logreg_C": base_res["logreg"]["params"]["C"], "gbdt_params": base_res["gbdt"]["params"],
+               "logreg_cv_auc": base_res["logreg"]["cv_auc"], "rbf_cv_auc": base_res["rbf_svm"]["cv_auc"],
+               "gbdt_cv_auc": base_res["gbdt"]["cv_auc"],
                "rbf_offdiag_var": metrics.concentration(K_rbf)["offdiag_var"],
                "s_classical": metrics.model_complexity(K_rbf, d["y_train"]),
-               "pca_explained_variance": d["explained_variance"], "classical_seconds": cls_s}
-        cls["best_classical_auc"] = max(cls["logreg_auc"], cls["rbf_auc"], cls["gbdt_auc"])
+               "pca_explained_variance": d["explained_variance"], "classical_seconds": cls_s,
+               "reduction": reduction}
+        if "selected_features" in d:
+            cls["selected_features"] = d["selected_features"]
+        cls["best_classical_auc"] = max(cls["logreg_auc"], cls["rbf_auc"], cls["gbdt_auc"])  # max of test AUCs
+        # the classical model a practitioner would pick: highest CV AUC on the training events
+        cv_pick = max(("logreg", "rbf", "gbdt"), key=lambda m: cls[f"{m}_cv_auc"])
+        cls["best_classical_by_cv"] = cv_pick
+        cls["best_classical_cv_selected_auc"] = cls[f"{cv_pick}_auc"]
         for fm, c in todo:
             q = quantum_block(d, fm["kind"], fm["reps"], fm.get("entanglement", "linear"), c,
                               K_rbf, lambdas, seed, projected)
@@ -135,8 +145,10 @@ def run(cfg: dict, out_root: str = "results", df=None, verbose: bool = True) -> 
                    "entanglement": fm.get("entanglement", "linear"), "bandwidth": c, **cls, **q}
             row["gap_vs_best"] = row["qsvm_auc"] - row["best_classical_auc"]
             row["gap_vs_rbf"] = row["qsvm_auc"] - row["rbf_auc"]
+            row["gap_vs_cv_best"] = row["qsvm_auc"] - row["best_classical_cv_selected_auc"]
             if projected:
                 row["pqk_gap_vs_best"] = row["pqk_auc"] - row["best_classical_auc"]
+                row["pqk_gap_vs_cv_best"] = row["pqk_auc"] - row["best_classical_cv_selected_auc"]
             with runs_path.open("a") as f:
                 f.write(json.dumps(row, default=float) + "\n")
             if verbose:

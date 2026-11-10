@@ -45,6 +45,29 @@ def test_preprocessor_fitted_on_train_only():
     assert d["X_train"].shape == (200, 4) and d["X_test"].shape == (400, 4)
 
 
+def test_importance_selector_fitted_on_train_only():
+    df, cols = data.select_features(_df())
+    d = data.prepare(df, cols, 3, 300, 400, seed=2, reduction="gbdt_importance")
+    pre = d["preprocessor"]
+    train, test = data.balanced_split(df, 300, 400, seed=2)
+    # refitting on the same training events with different test events gives the same selection and scaling
+    other = data.ImportanceSelector(3, seed=2).fit(train[cols].to_numpy(float), train["y"].to_numpy())
+    assert list(other.idx) == list(pre.idx)
+    assert np.allclose(other.transform(test[cols].to_numpy(float)), d["X_test"])
+    assert np.allclose(pre.scaler.mean_, train[cols].to_numpy(float).mean(0))
+    # the synthetic signal lives in DER_f0, DER_f3, DER_f6 (and DER_f1 via its variance): f0 must be picked
+    assert "DER_f0" in d["selected_features"] and len(d["selected_features"]) == 3
+    assert np.allclose(d["X_train"].min(0), -np.pi) and np.allclose(d["X_train"].max(0), np.pi)
+    assert d["X_train"].shape == (300, 3) and d["X_test"].shape == (400, 3) and d["explained_variance"] is None
+
+
+def test_prepare_rejects_unknown_reduction():
+    import pytest
+    df, cols = data.select_features(_df())
+    with pytest.raises(ValueError):
+        data.prepare(df, cols, 3, 100, 100, seed=0, reduction="lda")
+
+
 def test_precomputed_rbf_equals_builtin_rbf():
     from sklearn.metrics import roc_auc_score
     from sklearn.svm import SVC

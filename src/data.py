@@ -1,6 +1,7 @@
 """Loading, sampling, splitting and preprocessing of the ATLAS Higgs ML Challenge 2014 data.
 
-Every fitted step (StandardScaler, PCA, angle rescaling) is learned from training events only.
+Every fitted step (StandardScaler, PCA or boosted-tree feature ranking, angle rescaling) is learned
+from training events only.
 """
 from __future__ import annotations
 
@@ -95,20 +96,77 @@ class Preprocessor:
         return -np.pi + 2 * np.pi * (P - self.lo) / (self.hi - self.lo)
 
 
-def prepare(df: pd.DataFrame, cols: list[str], n_qubits: int, n_train: int, n_test: int, seed: int) -> dict:
-    """One seeded resample: returns train/test angle arrays (before bandwidth) and labels."""
+@dataclass
+class ImportanceSelector:
+    """StandardScaler -> keep the n features with the largest boosted-tree importance -> per-feature
+    linear map of the train range onto [-pi, pi] (the same angle map as Preprocessor).
+
+    Importance is XGBoost's total gain from a fixed, untuned model (300 trees, depth 3, learning rate 0.1)
+    fitted on the training events only; without XGBoost, sklearn's GradientBoostingClassifier impurity
+    importance is used. Ties are broken by column order. A robustness alternative to PCA.
+    """
+    n_components: int
+    seed: int = 0
+    scaler: StandardScaler = field(default=None, init=False)
+    importances: np.ndarray = field(default=None, init=False)
+    idx: np.ndarray = field(default=None, init=False)
+    impl: str = field(default=None, init=False)
+    lo: np.ndarray = field(default=None, init=False)
+    hi: np.ndarray = field(default=None, init=False)
+
+    def fit(self, X_train: np.ndarray, y_train: np.ndarray) -> "ImportanceSelector":
+        if self.n_components > X_train.shape[1]:
+            raise ValueError(f"asked for {self.n_components} features, only {X_train.shape[1]} available")
+        self.scaler = StandardScaler().fit(X_train)
+        Z = self.scaler.transform(X_train)
+        try:
+            from xgboost import XGBClassifier
+            model = XGBClassifier(n_estimators=300, max_depth=3, learning_rate=0.1, importance_type="total_gain",
+                                  random_state=self.seed, n_jobs=1, verbosity=0)
+            self.impl = "xgboost_total_gain"
+        except ImportError:  # pragma: no cover
+            from sklearn.ensemble import GradientBoostingClassifier
+            model = GradientBoostingClassifier(n_estimators=300, max_depth=3, learning_rate=0.1, random_state=self.seed)
+            self.impl = "sklearn_gbdt_impurity"
+        model.fit(Z, y_train)
+        self.importances = np.asarray(model.feature_importances_, float)
+        self.idx = np.argsort(-self.importances, kind="stable")[: self.n_components]
+        S = Z[:, self.idx]
+        self.lo, self.hi = S.min(0), S.max(0)
+        return self
+
+    def transform(self, X: np.ndarray) -> np.ndarray:
+        """Angles in [-pi, pi] for training data; test values may fall slightly outside (not clipped)."""
+        S = self.scaler.transform(X)[:, self.idx]
+        return -np.pi + 2 * np.pi * (S - self.lo) / (self.hi - self.lo)
+
+
+REDUCTIONS = ("pca", "gbdt_importance")
+
+
+def prepare(df: pd.DataFrame, cols: list[str], n_qubits: int, n_train: int, n_test: int, seed: int,
+            reduction: str = "pca") -> dict:
+    """One seeded resample: returns train/test angle arrays (before bandwidth) and labels.
+
+    reduction="pca": StandardScaler -> PCA(n_qubits) (the default used by every main experiment).
+    reduction="gbdt_importance": the n_qubits features with the largest boosted-tree importance on the
+    training events (ImportanceSelector).
+    """
+    if reduction not in REDUCTIONS:
+        raise ValueError(f"reduction must be one of {REDUCTIONS}, got {reduction!r}")
     train, test = balanced_split(df, n_train, n_test, seed)
-    pre = Preprocessor(n_qubits, seed).fit(train[cols].to_numpy(float))
-    return {
-        "X_train": pre.transform(train[cols].to_numpy(float)),
-        "X_test": pre.transform(test[cols].to_numpy(float)),
-        "y_train": train["y"].to_numpy(),
-        "y_test": test["y"].to_numpy(),
-        "train_ids": train["EventId"].to_numpy(),
-        "test_ids": test["EventId"].to_numpy(),
-        "explained_variance": float(pre.pca.explained_variance_ratio_.sum()),
-        "preprocessor": pre,
-    }
+    X_tr, X_te = train[cols].to_numpy(float), test[cols].to_numpy(float)
+    out = {"y_train": train["y"].to_numpy(), "y_test": test["y"].to_numpy(),
+           "train_ids": train["EventId"].to_numpy(), "test_ids": test["EventId"].to_numpy()}
+    if reduction == "pca":
+        pre = Preprocessor(n_qubits, seed).fit(X_tr)
+        out["explained_variance"] = float(pre.pca.explained_variance_ratio_.sum())
+    else:
+        pre = ImportanceSelector(n_qubits, seed).fit(X_tr, out["y_train"])
+        out["explained_variance"] = None
+        out["selected_features"] = [cols[i] for i in pre.idx]
+    out.update({"X_train": pre.transform(X_tr), "X_test": pre.transform(X_te), "preprocessor": pre})
+    return out
 
 
 def synthetic_atlas_like(n_events: int = 20000, seed: int = 0) -> pd.DataFrame:

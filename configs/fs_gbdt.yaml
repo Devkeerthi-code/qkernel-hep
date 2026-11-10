@@ -1,0 +1,14 @@
+# Robustness check for H1-H4 (docs/hypotheses.md): the n = 4 and n = 8 slices of main_grid with PCA
+# replaced by the top-n features ranked by boosted-tree importance (XGBoost total gain), fitted on the
+# training events only (src.data.ImportanceSelector). Everything else as in main_grid (150 quantum runs).
+name: fs_gbdt
+data: data/atlas-higgs-challenge-2014-v2.csv.gz
+reduction: gbdt_importance
+n_train: [500]
+n_test: 1000
+seeds: [0, 1, 2, 3, 4]
+qubits: [4, 8]
+feature_maps: [{kind: z, reps: 2}, {kind: zz, reps: 1}, {kind: zz, reps: 2}]
+bandwidths: [0.05, 0.1, 0.25, 0.5, 1.0]
+lambdas: [0.001, 0.01, 0.1]
+projected: true
