@@ -1,0 +1,23 @@
+n4_healthy seed=0: exact 0.759, 100 shots p=0.1 0.745 (29s)
+n4_healthy seed=1: exact 0.792, 100 shots p=0.1 0.788 (29s)
+n4_healthy seed=2: exact 0.765, 100 shots p=0.1 0.765 (31s)
+n4_healthy seed=3: exact 0.782, 100 shots p=0.1 0.781 (31s)
+n4_healthy seed=4: exact 0.798, 100 shots p=0.1 0.780 (28s)
+n4_concentrated seed=0: exact 0.480, 100 shots p=0.1 0.473 (31s)
+n4_concentrated seed=1: exact 0.520, 100 shots p=0.1 0.522 (32s)
+n4_concentrated seed=2: exact 0.541, 100 shots p=0.1 0.550 (12s)
+n4_concentrated seed=3: exact 0.547, 100 shots p=0.1 0.546 (11s)
+n4_concentrated seed=4: exact 0.505, 100 shots p=0.1 0.515 (19s)
+n8_healthy seed=0: exact 0.767, 100 shots p=0.1 0.766 (40s)
+n8_healthy seed=1: exact 0.765, 100 shots p=0.1 0.763 (33s)
+n8_healthy seed=2: exact 0.771, 100 shots p=0.1 0.770 (32s)
+n8_healthy seed=3: exact 0.778, 100 shots p=0.1 0.778 (31s)
+n8_healthy seed=4: exact 0.771, 100 shots p=0.1 0.771 (32s)
+n8_concentrated seed=0: exact 0.485, 100 shots p=0.1 0.484 (30s)
+n8_concentrated seed=1: exact 0.533, 100 shots p=0.1 0.531 (29s)
+n8_concentrated seed=2: exact 0.521, 100 shots p=0.1 0.522 (35s)
+n8_concentrated seed=3: exact 0.518, 100 shots p=0.1 0.521 (29s)
+n8_concentrated seed=4: exact 0.497, 100 shots p=0.1 0.503 (26s)
+hw_c0.05: exact 0.722, observed [('fake:fake_torino', 0.611), ('real:ibm_marrakesh', 0.681)]
+hw_c0.25: exact 0.590, observed [('fake:fake_torino', 0.604)]
+wrote results/noise.csv (1923 rows) and results/noise_summary.md
