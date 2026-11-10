@@ -1,0 +1,9 @@
+# LaTeX build files (main.pdf is committed)
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.synctex.gz
+numcheck.*

@@ -1,0 +1,359 @@
+% qkernel-hep report. Build:  cd report && pdflatex main && bibtex main && pdflatex main && pdflatex main
+% Every result number is a \V{key} macro defined in numbers.tex, generated from results/ by
+% scripts/report_numbers.py. Figures are generated from results/ by scripts/make_figures.py.
+\documentclass[10pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage[margin=2.1cm]{geometry}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
+\graphicspath{{../results/figures/notitle/}}
+\input{numbers.tex}
+\newcommand{\gC}{g(K_C\,\|\,K_Q)}
+\newcommand{\verdict}[1]{\textbf{Verdict: #1.}}
+\setlength{\parskip}{2pt}
+\setlength{\bibsep}{1pt}
+\renewcommand{\bibfont}{\footnotesize}
+
+\title{Does the geometric difference predict when a quantum kernel helps?\\
+\large A test of four hypotheses on ATLAS $H\to\tau\tau$ events}
+\author{qkernel-hep project}
+\date{10 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+\noindent We test whether the geometric difference $g$ of Huang et al.\ predicts how fidelity and projected quantum
+kernels compare with tuned classical models on \V{data_rows} simulated ATLAS $H\to\tau\tau$ events, with \V{ntrain}
+training events, \V{nseeds} seeds, \V{qubits_main_min}--\V{qubits_big_max} qubits, Z and ZZ feature maps and a
+bandwidth sweep (\V{nconfigs} configurations). Four hypotheses were written before the experiments.
+\textbf{H1 held}: no quantum kernel beats the best classical baseline by more than the seed spread (\V{h1_fid_qb} of
+\V{nconfigs} configurations, for both kernels). \textbf{H2 failed}: $\rho(g,\text{gap}) = \V{h2_pool_l001}$ for the
+regularised $g$ ($\lambda=0.01$), the wrong sign. This is consistent with Huang et al.'s necessary condition: the
+regularised $g$ never exceeds $\sqrt{N}=\V{sqrtN}$ (maximum \V{nc_max_l001}). What fails is the graded use of $g$ to
+pre-screen datasets. Kernel concentration explains the results better. \textbf{H3 held in part} (\V{h3_held} of
+\V{h3_cells} cells). \textbf{H4 held in part}: a smaller bandwidth recovers AUC in \V{h4_auc_rec} of \V{h4_cells} cells,
+but $g$ does not return towards~1. Boosted-tree feature selection instead of PCA changes no verdict. On
+\V{hw_backend} the AUC is \V{hw_auc_real} against \V{hw_auc_exact} exact (\V{hw_ntest} test events). We find no
+quantum advantage.
+\end{abstract}
+
+\section{Introduction}
+Quantum kernel methods embed data $x$ in a quantum state $|\phi(x)\rangle$ and train a classical kernel machine on
+the overlaps of these states. Whether they can beat classical models on classical data is open. Huang et
+al.~\cite{huang2021power} proposed a data-dependent test: the \emph{geometric difference} $\gC$ bounds how much
+harder a classical model can find the labels than the quantum model. If $g\lesssim\sqrt{N}$, a classical kernel is
+guaranteed to be competitive. The test has since been used as a \emph{pre-screening} tool, with a larger $g$ read as
+more promise for the quantum kernel~\cite{krunic2022ehr,moradi2023pet}.
+
+We ask whether this graded reading holds on collider data. We use the ATLAS Higgs Machine Learning Challenge
+events~\cite{atlas2014higgsdata,adambourdarios2015higgsml}, a standard signal-versus-background benchmark. Quantum
+kernels have been applied to collider data before~\cite{wu2021qsvm,belis2021higgs,heredge2021bmeson,fadol2024cepc,
+duckett2024tracks,belis2024anomaly,odagiu2025reduced}, including to this dataset~\cite{bhardwaj2026higgs}, but none
+of these studies tests $g$. Outside physics, $g$ has been reported not to track performance on tabular, financial,
+power-system and materials data~\cite{egginger2024hyperparameter,shen2026stock,islam2026power,adams2026materials}.
+In parallel, kernel concentration~\cite{thanasilp2024concentration} and bandwidth tuning~\cite{shaydulin2022bandwidth,
+canatar2023bandwidth,slattery2023numerical,florezablan2025similarity} have emerged as the factors that decide whether a
+quantum kernel learns at all.
+
+Our contribution is a test of $g$ and of the label-aware criterion on collider data, against four hypotheses
+written before the experiments (in the project guide, 7~November~2026; not formally pre-registered). The tests use
+seed-paired significance, bootstrap confidence intervals, correlations within each feature-map family and with
+concentration held fixed, and a replication with a second feature reduction. The results are \emph{consistent} with
+Huang et al.'s necessary condition. What fails is the graded use of $g$ to pre-screen datasets. Kernel concentration
+explains the pattern better.
+
+\section{Background}
+\paragraph{Fidelity and projected kernels.}
+For a data-encoding unitary $U(x)$, the fidelity kernel is $K_Q(x,x')=|\langle 0|U(x')^\dagger U(x)|0\rangle|^2$.
+The projected kernel~\cite{huang2021power} instead compares single-qubit reduced density matrices $\rho_k(x)$:
+$K_P(x,x')=\exp\!\big(-\gamma\sum_k\|\rho_k(x)-\rho_k(x')\|_F^2\big)$. We use Qiskit's Z and ZZ feature maps with linear
+entanglement and $r$ repetitions. Each repetition applies Hadamards and then a diagonal phase: $2x_i$ on qubit $i$,
+and for the ZZ map $2(\pi-x_i)(\pi-x_j)$ on neighbouring pairs. The bandwidth $c$ rescales the inputs,
+$x\to c\,x$~\cite{shaydulin2022bandwidth}.
+
+\paragraph{Geometric difference and model complexity.}
+With both kernels normalised to trace $N$, Huang et al.\ define $\gC=\sqrt{\|\sqrt{K_Q}K_C^{-1}\sqrt{K_Q}\|_\infty}$,
+where $\|\cdot\|_\infty$ is the spectral norm. A regularised version replaces $K_C^{-1}$ by
+$K_C(K_C+\lambda I)^{-2}$~\cite{huang2021power}. In their argument, $g$ bounds the classical model complexity:
+$s_C\le g^2 s_Q$. A quantum advantage is therefore only possible if $g\gtrsim\sqrt{N}$ \emph{and} the label-aware
+complexities satisfy $s_Q\ll s_C$. We take $K_C$ to be the RBF kernel with the RBF-SVM's cross-validated $\gamma$.
+Our $s$ is the ridge-regularised $\alpha^\top K\alpha/N$ with $\alpha=(K+\lambda I)^{-1}y$, which equals
+$s_K(N)/N$ in Huang et al.'s notation; their error bound $\sqrt{s_K(N)/N}$ is then $\sqrt{s}$.
+
+\paragraph{Concentration and bandwidth.}
+For expressive embeddings, global measurements, entanglement or noise, kernel values concentrate exponentially in the
+number of qubits around a fixed value~\cite{thanasilp2024concentration}. The Gram matrix then approaches a constant
+plus the identity, and the model stops depending on its inputs. Shrinking $c$ counteracts this, and an optimally tuned
+quantum kernel tends to behave like a classical RBF kernel~\cite{shaydulin2022bandwidth,canatar2023bandwidth,
+slattery2023numerical,florezablan2025similarity}. We measure concentration by the variance of the off-diagonal
+training-kernel entries.
+
+\section{Data and preprocessing}
+The dataset has \V{data_rows} simulated events (\V{data_signal} signal, \V{data_background} background) with
+\V{data_raw_features} features. We keep the \V{data_features} features that are always defined (no $-999$ placeholder),
+replace raw azimuthal angles by the rotation-invariant differences $|\Delta\phi|$ between the tau, lepton and missing
+momentum, and draw disjoint, class-balanced samples of \V{ntrain} training and \V{ntest} test events per seed. A
+StandardScaler and PCA to $n$ components ($n$ = number of qubits) are fitted on the training events only. Each component
+is mapped linearly from its training range onto $[-\pi,\pi]$ and then multiplied by $c$. As a robustness check
+(Sec.~\ref{sec:robust}) PCA is replaced by the $n$ features with the largest boosted-tree importance, again fitted on
+training events only.
+
+\section{Method}
+\paragraph{Grid.} The main grid covers $n\in\{\V{qubits_main}\}$, three feature maps (Z with $r=2$; ZZ with $r=1$ and
+$r=2$), $c\in\{\V{bandwidths}\}$ and \V{nseeds} seeds: \V{rows_main} runs. It is extended to $n\in\{\V{qubits_big}\}$
+for ZZ, $r=2$ with $c\in\{\V{bandwidths_big}\}$ (\V{rows_big} runs). Together these give the \V{nconfigs} configurations
+on which the hypotheses are judged. A training-size sweep (\V{sweep_ntrain} events, \V{rows_sweep} runs) and the
+feature-selection replication (\V{rows_fs} runs) are reported separately. Kernels are computed by exact statevector
+simulation, cross-checked against Qiskit to $10^{-10}$.
+
+\paragraph{Models and tuning.} The quantum kernels feed a support vector machine (SVM) with a precomputed kernel, with
+$C$ tuned by stratified 5-fold cross-validation (CV) on the training events (ROC-AUC). For the projected kernel,
+$\gamma$ is also tuned by CV, relative to the median distance. The classical baselines are logistic regression, an
+RBF-SVM and boosted trees (XGBoost), each tuned by the same CV. The metric is test ROC-AUC. ``Best classical'' is the
+maximum of the three classical test AUCs, which favours the classical side (Sec.~\ref{sec:limits}). $g$ is computed for
+$\lambda\in\{0,\V{lambdas}\}$; the headline uses $\lambda=0.01$.
+
+\paragraph{Statistics.} A seed-paired difference is \emph{not significant} if its mean is within one seed-to-seed
+standard deviation. With \V{nseeds} seeds this is a lenient rule: roughly a paired $t$ of 2.2, $p\approx0.09$. Correlations
+are Spearman's $\rho$ over configuration means, with 95\% percentile-bootstrap intervals over configurations (\V{nboot}
+resamples). Partial correlations control for $\log_{10}$ of the off-diagonal variance.
+
+\section{Results}
+The hypotheses, quoted from the project guide:
+\begin{quote}\small
+\textbf{H1:} The tuned classical baselines match or beat every quantum kernel on this data. Test: AUC with error bars
+across all configurations.\\
+\textbf{H2:} Geometric difference correlates positively with the quantum-minus-classical AUC gap. Test: Spearman
+correlation across configurations, with a confidence interval.\\
+\textbf{H3:} As qubits and depth grow at fixed bandwidth, concentration rises and AUC falls. Test: plot variance and AUC
+against qubit count.\\
+\textbf{H4:} Reducing bandwidth c reduces concentration and recovers performance, while pulling g back toward 1. Test:
+sweep c at fixed qubits; plot g, variance and AUC together.
+\end{quote}
+
+\subsection{H1: classical baselines versus quantum kernels}
+\begin{figure}[t]
+\centering\includegraphics[width=\textwidth]{fig1_auc_vs_qubits.pdf}
+\caption{Test AUC against qubit count for every model (mean $\pm$ sd over seeds), one panel per feature map. The
+quantum bandwidth is chosen per seed by CV; open markers: only $c\in\{\V{bandwidths_big}\}$ searched.}
+\label{fig:h1}
+\end{figure}
+Across all \V{nconfigs} configurations, the fidelity kernel is significantly worse than the best classical baseline in
+\V{h1_fid_cb} and not significantly different in \V{h1_fid_ns}. The projected kernel is worse in \V{h1_pqk_cb} and
+indistinguishable in \V{h1_pqk_ns}. Neither kernel is significantly better anywhere (\V{h1_fid_qb} of
+\V{nconfigs}), and the largest mean gap is \V{h1_fid_maxgap} (fidelity) and \V{h1_pqk_maxgap} (projected).
+Against the RBF-SVM alone, \V{h1_rbf_hits} configurations exceed it by more than the seed spread:
+\V{h1_rbf0_desc} (\V{h1_rbf0_gap}) and \V{h1_rbf1_desc} (\V{h1_rbf1_gap}). Both are at the smallest $n$, and both lie
+within the seed spread of the best classical model (\V{h1_rbf0_best}, \V{h1_rbf1_best}). About \V{h1_chance} such hits
+per kernel are expected by chance under this rule. Figure~\ref{fig:h1} shows the per-seed best bandwidth. The best
+classical AUC rises from \V{best_cl_n2} at $n=2$ to \V{best_cl_n10} at $n=10$. The Z map tracks it (\V{cv_z_n10_auc} at
+$n=10$, gap \V{cv_z_n10_gap}). The ZZ maps fall significantly behind from $n=\V{cv_zz_first_behind}$ (gap
+\V{cv_zz2_n10_gap} at $n=10$ and \V{cv_zz2_n14_gap} at $n=14$ for $r=2$). \verdict{H1 held}
+
+\subsection{H2: geometric difference versus the AUC gap}
+\begin{figure}[t]
+\centering\includegraphics[width=\textwidth]{fig2_gap_vs_g.pdf}
+\caption{AUC gap (fidelity kernel minus best classical) against $g$ for four $\lambda$, one point per configuration,
+coloured by $\log_{10}$ off-diagonal variance; Spearman $\rho$ with 95\% bootstrap interval above each panel.}
+\label{fig:h2}
+\end{figure}
+\begin{table}[t]
+\centering\footnotesize\setlength{\tabcolsep}{3.5pt}
+\caption{Spearman $\rho$ between $g$ and the AUC gap across \V{nconfigs} configurations (95\% bootstrap intervals).
+H2 predicts $\rho>0$.}
+\label{tab:h2}
+\begin{tabular}{lcccc}
+\toprule
+ & $\lambda=0$ & $\lambda=0.001$ & $\lambda=0.01$ & $\lambda=0.1$\\
+\midrule
+pooled & \V{h2_pool_l0} & \V{h2_pool_l0001} & \V{h2_pool_l001} & \V{h2_pool_l01}\\
+partial $\mid\log_{10}$ var. & \V{h2_part_l0} & \V{h2_part_l0001} & \V{h2_part_l001} & \V{h2_part_l01}\\
+within Z, $r=2$ & \V{h2_within_l0_z} & \V{h2_within_l0001_z} & \V{h2_within_l001_z} & \V{h2_within_l01_z}\\
+within ZZ, $r=1$ & \V{h2_within_l0_zza} & \V{h2_within_l0001_zza} & \V{h2_within_l001_zza} & \V{h2_within_l01_zza}\\
+within ZZ, $r=2$ & \V{h2_within_l0_zzb} & \V{h2_within_l0001_zzb} & \V{h2_within_l001_zzb} & \V{h2_within_l01_zzb}\\
+\bottomrule
+\end{tabular}
+\end{table}
+Table~\ref{tab:h2} and Fig.~\ref{fig:h2} give the test. For the headline regularised $g$ ($\lambda=0.01$),
+$\rho=\V{h2_pool_l001}$: significantly \emph{negative}. The same holds at $\lambda=0$ and $0.001$. Only $\lambda=0.1$
+gives a positive pooled $\rho$ (\V{h2_pool_l01}). That correlation vanishes once concentration is controlled
+(partial \V{h2_part_l01}), and within the ZZ maps the partial correlations at $\lambda=0.1$ are
+\V{h2_wpart_l01_zza} and \V{h2_wpart_l01_zzb}. Kernel variance itself tracks the gap better than any $g$
+($\rho=\V{h2_logvar}$). The label-aware ratio $\log_{10}(s_C/s_Q)$ is also negative ($\rho=\V{h2_ratio_pool}$; partial
+\V{h2_ratio_part}). But $s_C\ge\V{h2_sc_min}$ in every configuration, so the bound $\sqrt{s}$ exceeds 1 and is vacuous.
+Concentrated kernels get $s_Q$ near 1 because they memorise the labels ($\rho(s_Q,\text{AUC})=\V{h2_sq_auc}$).
+
+\emph{Huang et al.'s necessary condition.} With $N=\V{ntrain}$, $\sqrt{N}=\V{sqrtN}$. The regularised $g$ never reaches
+it: the maxima are \V{nc_max_l001} ($\lambda=0.01$) and \V{nc_max_l01} ($\lambda=0.1$), so
+\V{nc_above_l001} of \V{nconfigs} configurations pass. No configuration shows an advantage, which is consistent with
+the criterion. The unregularised $g$ (maximum \V{nc_max_l0}) exceeds $\sqrt{N}$ in \V{nc_above_l0} configurations.
+None of them shows an advantage either (\V{nc_above_l0_cb} classical better, \V{nc_above_l0_ns} not significant); these
+are mostly concentrated kernels, so passing is necessary but not sufficient. \verdict{H2 failed} $g$ does not
+correlate positively with the gap.
+
+\subsection{H3: concentration and AUC against qubit count and depth}
+\begin{figure}[t]
+\centering\includegraphics[width=0.85\textwidth]{fig3_concentration_vs_qubits.pdf}
+\caption{$\log_{10}$ off-diagonal kernel variance (top) and fidelity-kernel AUC (bottom) against qubit count, one line
+per bandwidth $c$ (mean $\pm$ sd over seeds).}
+\label{fig:h3}
+\end{figure}
+For each feature map and bandwidth we regress $\log_{10}$ variance and AUC on $n$ (Fig.~\ref{fig:h3}). H3 requires both
+to fall significantly. That happens in \V{h3_held} of \V{h3_cells} (map, $c$) cells: \V{h3_held_list}. For the ZZ maps
+at $c\ge0.25$, the variance falls by \V{h3_slope_min}--\V{h3_slope_max} decades per qubit. For ZZ, $r=2$, $c=1$ it drops
+from \V{ex_zz2_c1_var_n2} at $n=2$ to \V{ex_zz2_c1_var_n14} at $n=14$, while the AUC is already near chance
+(\V{ex_zz2_c1_auc_n2} and \V{ex_zz2_c1_auc_n14}), so it cannot fall further. For the Z map the AUC rises with $n$ in
+\V{h3_z_auc_rises} of \V{h3_z_cells} cells: more PCA components carry more information. Depth has no consistent effect.
+Over \V{h3_depth_cells} matched (n, c) cells, ZZ with $r=2$ is more concentrated than $r=1$ in \V{h3_depth_more_conc}
+and has lower AUC in \V{h3_depth_auc_lower}.
+
+Low variance is not enough to predict failure. Concentrated kernels (variance $<10^{-3}$, off-diagonal mean $<0.1$;
+\V{h3_conc_n} configurations) have median AUC \V{h3_conc_med} and at most \V{h3_conc_max}. Near-constant kernels
+(variance $<10^{-3}$, mean $>0.5$; \V{h3_flat_n} configurations, all Z map with the smallest $c$) still reach median
+AUC \V{h3_flat_med} in exact simulation. \verdict{H3 held in part} It held for the entangling map at larger
+bandwidths, not for the product map or small $c$, and not for depth.
+
+\subsection{H4: bandwidth at fixed qubit count}
+\begin{figure}[t]
+\centering\includegraphics[width=0.85\textwidth]{fig4_vs_bandwidth.pdf}
+\caption{Regularised $g$ ($\lambda=0.01$), $\log_{10}$ off-diagonal variance and fidelity-kernel AUC against bandwidth
+$c$ at $n=4$ (top) and $n=8$ (bottom); the grey band is the best classical AUC $\pm$ sd.}
+\label{fig:h4}
+\end{figure}
+In each of the \V{h4_cells} (feature map, $n$) cells of the main grid we compare $c=\V{bw_min}$ with $c=\V{bw_max}$,
+paired by seed (Fig.~\ref{fig:h4}). \emph{First half.} A smaller $c$ recovers the AUC in \V{h4_auc_rec} of
+\V{h4_cells} cells; for example, ZZ with $r=2$ at $n=8$ goes from \V{ex_h4_auc_large} to \V{ex_h4_auc_small}. A smaller
+$c$ raises the variance (reduces concentration) in only \V{h4_var_raised} of \V{h4_cells}. In the Z-map cells and at
+$n=2$, the kernel flattens towards a constant at small $c$, so its variance falls even though the AUC recovers.
+\emph{Second half, and its dependence on $\lambda$.} For the headline regularised $g$ ($\lambda=0.01$), $g$ falls
+steadily towards 1 as $c$ shrinks in only \V{h4_g01_mono} of \V{h4_cells} cells. For the ZZ maps it peaks at an
+intermediate bandwidth ($c\in\{\V{h4_g01_argmax_zz}\}$), and at $c=\V{bw_min}$ it is still \V{h4_g01_small_min}--\V{h4_g01_small_max}.
+For ZZ, $r=2$, $n=8$ it goes \V{ex_h4_g01_large} at $c=1$, maximum at $c=\V{ex_h4_g01_argmax}$, then
+\V{ex_h4_g01_small} at $c=\V{bw_min}$. The unregularised $g$ ($\lambda=0$) behaves differently. It is closer to 1 at
+small $c$ in \V{h4_g0_closer} of \V{h4_cells} cells and falls steadily in \V{h4_g0_mono}, from
+\V{h4_g0_large_min}--\V{h4_g0_large_max} at $c=1$ to \V{h4_g0_small_min}--\V{h4_g0_small_max} at $c=\V{bw_min}$. It moves
+towards 1 without getting there. \verdict{H4 held in part} The first half held for AUC and, for the ZZ maps at
+$n\ge4$, for concentration. The second half failed for the regularised $g$. For the unregularised $g$ only its
+direction holds.
+
+\section{Robustness: PCA versus boosted-tree feature selection}\label{sec:robust}
+\begin{figure}[t]
+\centering\includegraphics[width=0.85\textwidth]{fig7_robustness_feature_selection.pdf}
+\caption{Fidelity-kernel AUC, $\log_{10}$ variance and $g$ ($\lambda=0.01$) against $c$ at $n=4$ and $n=8$, for PCA
+(solid) and the top-$n$ boosted-tree features (dashed); grey lines are the best classical AUC.}
+\label{fig:robust}
+\end{figure}
+We repeat the $n\in\{\V{fs_qubits}\}$ slices with the top-$n$ features by XGBoost importance, fitted on training events
+only; \V{rob_top2} are always selected first. All four hypotheses are re-tested on both slices with the same code, and
+\V{rob_unchanged} of 4 verdicts are unchanged (Fig.~\ref{fig:robust}).
+\begin{itemize}
+\item \textbf{Both sides improve.} Feature selection helps classical and quantum models alike: the best classical AUC
+moves from \V{rob_bc_pca_n4} to \V{rob_bc_fs_n4} ($n=4$) and from \V{rob_bc_pca_n8} to \V{rob_bc_fs_n8} ($n=8$). The
+median change over configurations is \V{rob_dbc} for the best classical and \V{rob_dq} for the fidelity kernel.
+\item \textbf{H1 still holds.} No quantum kernel exceeds the best classical model (\V{rob_fs_fid_qb} and
+\V{rob_fs_pqk_qb} of \V{rob_fs_nconf}). It also holds against the classical model selected by CV, stored only for these
+runs (\V{rob_fs_fid_cv_qb} and \V{rob_fs_pqk_cv_qb}). Choosing the best classical model on test AUC raises it by only
+\V{rob_bias} on average.
+\item \textbf{H2 still fails.} $\rho$ is \V{rob_fs_h2_l001} at $\lambda=0.01$ (PCA slice: \V{rob_pca_h2_l001}) and
+\V{rob_fs_h2_l0} at $\lambda=0$. The positive value at $\lambda=0.1$ (\V{rob_fs_h2_l01}) again disappears once
+concentration is controlled (\V{rob_fs_h2part_l01}).
+\item \textbf{H3 and H4 still hold only in part.} H3 holds in \V{rob_fs_h3_held} of \V{rob_fs_h3_cells} cells (PCA:
+\V{rob_pca_h3_held}). For H4, a smaller $c$ recovers the AUC in \V{rob_fs_h4_auc} of \V{rob_fs_h4_cells} cells and
+raises the variance in \V{rob_fs_h4_var}. The regularised $g$ falls steadily towards 1 in \V{rob_fs_h4_g}.
+\item \textbf{Similar angle spread.} The median interquartile range of the encoded angles is
+\V{ang_fs_n4}/\V{ang_fs_n8} rad with feature selection and \V{ang_pca_n4}/\V{ang_pca_n8} rad with PCA ($n=4$/$n=8$), so
+the effective bandwidth is not very different.
+\end{itemize}
+
+\section{Noise study and the real-hardware run}
+\begin{figure}[t]
+\centering\includegraphics[width=\textwidth]{fig6_noise_and_hardware.pdf}
+\caption{(a) Fidelity-kernel AUC against shots per kernel entry; (b) against global depolarising strength;
+(c) the hardware setup: analytic noise model (boxes over \V{hw_draws} draws), noisy simulator and \V{hw_backend}.}
+\label{fig:noise}
+\end{figure}
+\paragraph{Analytic noise.} We take four ZZ, $r=2$ settings: healthy ($c=\V{nz_c_healthy}$) and concentrated
+($c=\V{nz_c_conc}$), each at $n=4$ and $n=8$. We re-estimate both train and test kernels with binomial shot noise
+(\V{nz_shots} shots) and global depolarising noise ($p_{\rm tot}\in\{\V{nz_p}\}$), \V{nseeds} seeds each
+(Fig.~\ref{fig:noise}a,b). Shot noise dominates. The healthy $n=4$ kernel goes from AUC \V{nz_h4_ex} (exact) to
+\V{nz_h4_1k} (1000 shots) and \V{nz_h4_100} (100 shots). The $n=8$ kernel goes from \V{nz_h8_ex} to \V{nz_h8_100}.
+Depolarising noise alone barely matters: \V{nz_h4_ex_p01} at $p_{\rm tot}=0.1$ for healthy $n=4$. The concentrated kernels
+stay at \V{nz_conc_min}--\V{nz_conc_max} under every condition, against best classical AUCs of \V{nz_bc4} and \V{nz_bc8}.
+Shot noise also inflates the measured variance of the concentrated $n=8$ kernel, from \V{nz_var8c_ex} to \V{nz_var8c_100}
+at 100 shots. So the variance diagnostic is reliable at 1000 or more shots but can mislead at 100.
+
+\paragraph{Hardware.} On \V{hw_backend} we ran the ZZ map with $r=\V{hw_reps}$, $n=\V{hw_n}$, $c=\V{hw_c}$, with
+\V{hw_ntrain} training and \V{hw_ntest} test events and \V{hw_shots} shots. This took \V{hw_circuits} circuits (mean
+depth \V{hw_depth}, \V{hw_2q} two-qubit gates) and \V{hw_qpu_s}~s of QPU time (Fig.~\ref{fig:noise}c).
+\begin{itemize}
+\item \textbf{Fidelity kernel:} AUC \V{hw_auc_real}, against \V{hw_auc_exact} exact and \V{hw_auc_fake} on the
+\V{hw_fake_backend} noisy simulator.
+\item \textbf{Projected kernel:} \V{hw_pqk_real}, against \V{hw_pqk_exact} exact and \V{hw_pqk_fake} simulated.
+\item \textbf{Kernel error:} the mean absolute error of the hardware training kernel is \V{hw_mae_real}
+(simulator: \V{hw_mae_fake}). Its off-diagonal mean drops from \V{hw_mean_exact} to \V{hw_mean_real}, which
+corresponds to an effective global depolarising strength of \V{hw_peff_real} (simulator: \V{hw_peff_fake}).
+\item \textbf{Analytic model:} at $p_{\rm tot}=0.1$ and \V{hw_shots} shots, the model gives a mean AUC of
+\V{hwm_p01_mean} (5--95\%: \V{hwm_p01_q05}--\V{hwm_p01_q95}) and a kernel error of \V{hwm_p01_mae}. The hardware
+AUC falls inside that range; the simulator's falls below it.
+\end{itemize}
+With only \V{hw_ntest} test events, these AUCs are demonstrations, not precise measurements.
+
+\section{Discussion and limitations}\label{sec:limits}
+\paragraph{What the results say about $g$.} Huang et al.\ use $g$ as a \emph{necessary condition}. A small $g$
+guarantees that a classical model is competitive; a large $g$ only opens the possibility of an advantage, which must
+then be confirmed with the label-aware complexities~\cite{huang2021power}. Our data are consistent with that: the
+regularised $g$ never passes $\sqrt{N}$, and no configuration beats the classical baselines. What fails is the
+\emph{graded} reading of $g$, in which a larger $g$ marks a more promising dataset or configuration. On these data $g$
+is anti-correlated with the gap, and its only positive association disappears once kernel concentration is controlled.
+Concentration explains the results better: it tracks the gap more strongly than any $g$. It accounts for the ZZ
+collapse at large $c$ and $n$. It also shows two distinct low-variance regimes, a concentrated one and a near-constant
+one. This matches the ``spectral degeneracy'' confound reported for power-system data~\cite{islam2026power} and the
+bandwidth-to-RBF picture~\cite{slattery2023numerical,florezablan2025similarity}. A plausible reason why the
+regularised $g$ does not return to 1 at small $c$ is that the small-bandwidth ZZ kernel approaches an
+\emph{anisotropic} Gaussian~\cite{tekeli2026zz}, not the isotropic RBF used as $K_C$. We have not tested this.
+
+\paragraph{Limitations.}
+\begin{itemize}
+\item \textbf{Simulated data and small samples.} The events are detector-level Monte Carlo, with balanced classes and
+only $N=\V{ntrain}$ training events, far fewer than the classical models could use.
+\item \textbf{Lenient significance.} \V{nseeds} seeds and the 1-sd rule correspond to $p\approx0.09$ per comparison,
+with many comparisons. ``Not significant'' does not mean equal.
+\item \textbf{Shared seeds.} All configurations reuse the same \V{nseeds} data splits, so they are not independent, and
+the bootstrap intervals over configurations are optimistic.
+\item \textbf{Best-of-three classical.} ``Best classical'' is selected on test AUC. This favours H1. It was measured to
+be small (\V{rob_bias}), but only for the feature-selection runs.
+\item \textbf{Hardware.} Only one configuration was run on hardware, with \V{hw_ntest} test events. The noise model is a
+global depolarising channel, not a device model.
+\item \textbf{Scope.} Only Z and ZZ maps with linear entanglement, one classical reference kernel for $g$, and a headline
+$\lambda$ that is our choice, not part of the hypotheses. The hypotheses were written before the experiments but not
+formally pre-registered.
+\end{itemize}
+
+\section{Conclusion and future work}
+On ATLAS $H\to\tau\tau$ events, tuned classical baselines match or beat every quantum kernel we test (H1 held), so we
+claim no quantum advantage. The geometric difference fails as a graded predictor of the quantum-minus-classical gap
+(H2 failed). It is anti-correlated with the gap, consistent with Huang et al.'s necessary condition, and better
+explained by kernel concentration. Concentration rises with qubits at fixed bandwidth for the entangling map but not
+in general (H3 held in part). A smaller bandwidth recovers AUC but does not pull $g$ back towards 1 (H4 held in part).
+These conclusions survive a change of feature reduction and the noise levels we studied.
+
+Next steps follow from the literature and are cheap with the stored kernels:
+\begin{itemize}
+\item Kernel--target alignment as the predictor, which worked where $g$ failed on power-system data~\cite{islam2026power}.
+\item $g$ against an anisotropic Gaussian reference~\cite{tekeli2026zz}.
+\item Shot-noise requirements for the near-constant small-$c$ kernels~\cite{miroszewski2024shots}.
+\item Larger training sets and more hardware test events.
+\end{itemize}
+
+\bibliographystyle{plainnat}
+\bibliography{../docs/references}
+\end{document}
