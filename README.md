@@ -2,6 +2,7 @@
 
 [![tests](https://github.com/Devkeerthi-code/qkernel-hep/actions/workflows/tests.yml/badge.svg)](https://github.com/Devkeerthi-code/qkernel-hep/actions/workflows/tests.yml)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24139474.svg)](https://doi.org/10.5281/zenodo.24139474)
 
 We compare fidelity and projected quantum kernels with tuned classical models on 818,238 simulated ATLAS
 H→ττ events from the Higgs Boson Machine Learning Challenge 2014:
@@ -137,8 +138,30 @@ qkernel-hep/
 └── requirements-figures.txt  minimal pins for rebuilding the figures
 ```
 
-## Citing and license
+## License
 
-Cite via [CITATION.cff](CITATION.cff) (GitHub's "Cite this repository" button). The code is under the
-[MIT License](LICENSE). The ATLAS data are distributed by CERN Open Data under their own terms. The background and
-closest prior work are in [docs/related_work.md](docs/related_work.md).
+The code is under the [MIT License](LICENSE). The ATLAS data are distributed by CERN Open Data under their own
+terms. The background and closest prior work are in [docs/related_work.md](docs/related_work.md).
+
+## How to cite
+
+If you use this code or its results, please cite the archived release on Zenodo,
+[doi:10.5281/zenodo.24139474](https://doi.org/10.5281/zenodo.24139474):
+
+> Dev Keerthi P (2026). *qkernel-hep: does the geometric difference predict when a quantum kernel helps? A test on
+> ATLAS H→ττ events* (Version 1.0) [Software]. Zenodo. https://doi.org/10.5281/zenodo.24139474
+
+```bibtex
+@software{p_2026_qkernel_hep,
+  author    = {P, Dev Keerthi},
+  title     = {qkernel-hep: does the geometric difference predict when a quantum kernel helps?
+               A test on ATLAS H$\to\tau\tau$ events},
+  year      = {2026},
+  version   = {1.0},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.24139474},
+  url       = {https://doi.org/10.5281/zenodo.24139474}
+}
+```
+
+The same metadata is in [CITATION.cff](CITATION.cff), which GitHub's "Cite this repository" button uses.

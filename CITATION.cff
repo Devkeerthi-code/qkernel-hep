@@ -4,6 +4,7 @@ type: software
 title: "qkernel-hep: does the geometric difference predict when a quantum kernel helps? A test on ATLAS H→ττ events"
 version: "1.0"
 license: MIT
+doi: "10.5281/zenodo.24139474"
 authors:
   - given-names: Dev Keerthi
     family-names: P
